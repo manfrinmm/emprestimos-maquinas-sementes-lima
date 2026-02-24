@@ -1,16 +1,15 @@
-import { cookies } from "next/headers";
 import { Tractor, Mail, ArrowRight, ShieldCheck } from "lucide-react";
 import { loginAction } from "./_action/loginAction";
-import { LoginPageProps } from "./_types";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "./_components/PasswordInput";
 
 const inputClass =
   "w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-green-100 outline-none transition-all text-gray-900 placeholder-gray-400";
 
-export default async function LoginPage({ searchParams }: LoginPageProps) {
+type Props = { searchParams: Promise<{ error?: string }> };
+
+export default async function LoginPage({ searchParams }: Props) {
   const { error } = await searchParams;
-  const token = (await cookies()).get("auth-token")?.value ?? null;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50 font-sans">
