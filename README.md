@@ -1,36 +1,119 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Machine Tracker — Controle Agrícola
 
-## Getting Started
+Sistema interno para controle e rastreio de máquinas e empréstimos no contexto agrícola (Sementes Lima).
 
-First, run the development server:
+## Tecnologias
+
+- **Next.js 16** (App Router)
+- **React 19**
+- **Prisma** + PostgreSQL
+- **Tailwind CSS 4** + shadcn/ui
+- **Zod** (validação)
+- **Lucide React** (ícones)
+
+## Pré-requisitos
+
+- Node.js 20+
+- pnpm
+- PostgreSQL em execução (ex.: Docker)
+
+## Configuração
+
+1. Clone o repositório e instale as dependências:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Crie um arquivo `.env` na raiz (ou copie de `.env.example` se existir) e defina:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+# Banco de dados (obrigatório para rodar migrations e app)
+DATABASE_URL="postgresql://USUARIO:SENHA@localhost:5432/NOME_DO_BANCO?schema=public"
+DIRECT_URL="postgresql://USUARIO:SENHA@localhost:5432/NOME_DO_BANCO?schema=public"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Substitua `USUARIO`, `SENHA` e `NOME_DO_BANCO` pelos valores do seu PostgreSQL.
 
-## Learn More
+## Migrations (Prisma)
 
-To learn more about Next.js, take a look at the following resources:
+1. **Gerar o Prisma Client** (após alterar o `schema.prisma` ou ao subir o projeto):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm exec prisma generate
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Criar e aplicar migrations** (cria/atualiza as tabelas no banco):
 
-## Deploy on Vercel
+```bash
+pnpm exec prisma migrate dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Para apenas aplicar migrations já existentes (ex.: em produção):
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm exec prisma migrate deploy
+```
+
+- **Desenvolvimento:**
+
+```bash
+pnpm run dev
+```
+
+Acesse [http://localhost:3000](http://localhost:3000). A rota de login está em `/(login)` (ex.: `/` dependendo do layout/redirect).
+
+- **Build e produção:**
+
+```bash
+pnpm run build
+pnpm start
+```
+
+## Estrutura do projeto
+
+```
+├── app/
+│   ├── (login)/                 # Rota de login (layout de login)
+│   │   ├── _action/             # Server Actions (ex.: loginAction)
+│   │   ├── _components/         # Componentes da tela de login (ex.: PasswordInput)
+│   │   ├── _types/              # Tipos da página de login
+│   │   └── page.tsx             # Página de login
+│   ├── api/
+│   │   ├── auth/                # Autenticação
+│   │   │   ├── controller.ts   # Lógica de login (chama service)
+│   │   │   ├── route.ts         # POST /api/auth (login via API)
+│   │   │   ├── service.ts       # Regras de negócio + Prisma
+│   │   │   └── types.ts         # Tipos de auth
+│   │   └── (prisma)/            # Prisma Client singleton
+│   │       └── index.ts
+│   ├── globals.css              # Estilos globais + tema Tailwind
+│   └── layout.tsx               # Layout raiz
+├── components/
+│   └── ui/                      # Componentes UI (ex.: button)
+├── lib/
+│   └── utils.ts                 # Utilitários (ex.: cn)
+├── prisma/
+│   ├── migrations/              # Migrations aplicadas
+│   ├── schema.prisma            # Modelos e datasource
+│   └── seed.ts                  # (opcional) Seed do banco
+├── .env                         # Variáveis de ambiente (não versionar)
+├── package.json
+└── README.md
+```
+
+## Autenticação
+
+- **Login por formulário:** a página em `app/(login)/page.tsx` usa a Server Action `loginAction`, que chama `loginController` e define o cookie `auth-token`.
+- **Login por API:** `POST /api/auth` com body `{ "email", "password" }` retorna `{ user, token }` e define o mesmo cookie.
+- O token é armazenado em cookie httpOnly; a aplicação pode usá-lo para identificar sessão em rotas protegidas.
+
+## Banco de dados
+
+- **Provider:** PostgreSQL.
+- **Modelo principal:** `User` (id, name, email, password, role, createdAt, updatedAt) com enum `UserRole` (ADMIN, USER).
+- Schema e migrations ficam em `prisma/schema.prisma` e `prisma/migrations/`.
+
+---
+
+Para dúvidas sobre Prisma: [Prisma Docs](https://www.prisma.io/docs).
