@@ -3,12 +3,14 @@
 import { useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { clearUrlOnInput } from "@/utils";
+import { useUserStore } from "@/store/user";
+import type { LoginActionResult } from "../_action/loginAction";
 
 const REMEMBER_KEY = "login-remember";
 const EMAIL_KEY = "login-email";
 
 type Props = {
-  action: (formData: FormData) => void | Promise<void>;
+  action: (formData: FormData) => Promise<LoginActionResult>;
   hasError?: boolean;
   children: React.ReactNode;
 };
@@ -16,6 +18,7 @@ type Props = {
 export function RememberMeForm({ action, hasError, children }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
+  const setUser = useUserStore((s) => s.setUser);
 
   useEffect(() => {
     if (!hasError || !formRef.current) return;
@@ -43,8 +46,9 @@ export function RememberMeForm({ action, hasError, children }: Props) {
   return (
     <form
       ref={formRef}
-      action={action}
-      onSubmit={(e) => {
+      className="space-y-6"
+      onSubmit={async (e) => {
+        e.preventDefault();
         const form = e.currentTarget;
         const remember = form.querySelector("#remember")?.getAttribute("data-state") === "checked";
         if (remember) {
@@ -55,8 +59,13 @@ export function RememberMeForm({ action, hasError, children }: Props) {
           localStorage.removeItem(REMEMBER_KEY);
           localStorage.removeItem(EMAIL_KEY);
         }
+        const formData = new FormData(form);
+        const result = await action(formData);
+        if (result?.success) {
+          setUser(result.user);
+          router.push("/");
+        }
       }}
-      className="space-y-6"
     >
       {children}
     </form>

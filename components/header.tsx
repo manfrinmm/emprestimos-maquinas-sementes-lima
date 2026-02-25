@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/sheet";
 import { logoutAction } from "@/app/(private)/_actions/logoutAction";
 import { cn } from "@/lib/utils";
+import { useUserStore } from "@/store/user";
+import { roleLabels } from "@/utils/user/user";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -32,8 +34,6 @@ const navItems = [
   { href: "/historico", label: "Histórico", icon: History },
   { href: "/gestao", label: "Gestão", icon: Users },
 ] as const;
-
-const user = { name: "João Silva", role: "Vendedor", avatar: "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg" };
 
 function NavLink({
   href,
@@ -67,6 +67,7 @@ function NavLink({
 
 export function Header() {
   const pathname = usePathname();
+  const { user } = useUserStore();
 
   return (
     <>
@@ -104,8 +105,8 @@ export function Header() {
                     </SheetHeader>
                     <div className="p-4 border-b border-gray-200 flex items-center gap-3">
                       <div>
-                        <div className="font-semibold text-gray-900">{user.name}</div>
-                        <div className="text-sm text-gray-500">{user.role}</div>
+                        <div className="font-semibold text-gray-900">{user?.name}</div>
+                        <div className="text-sm text-gray-500">{roleLabels[user?.role ?? '']}</div>
                       </div>
                     </div>
                     <nav className="p-4 flex flex-col gap-1 flex-1">
@@ -158,8 +159,8 @@ export function Header() {
             <div className="flex items-center gap-2 md:gap-4">
               <div className="flex items-center gap-2 md:gap-3 px-2 md:px-4 py-2 bg-gray-50 rounded-lg">
                 <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-gray-900">{user.name}</span>
-                  <span className="text-xs text-gray-500">{user.role}</span>
+                  <span className="text-sm font-semibold text-gray-900">{user?.name}</span>
+                  <span className="text-xs text-gray-500">{roleLabels[user?.role ?? '']}</span>
                 </div>
               </div>
               <form action={logoutAction}>
