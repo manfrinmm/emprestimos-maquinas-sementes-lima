@@ -2,7 +2,9 @@ import { Tractor, Mail, ArrowRight, ShieldCheck } from "lucide-react";
 import { loginAction } from "./_action/loginAction";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "./_components/PasswordInput";
+import { RememberMeForm } from "./_components/RememberMeForm";
 import { parseError } from "@/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const inputClass =
   "w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-green-100 outline-none transition-all text-gray-900 placeholder-gray-400";
@@ -38,7 +40,7 @@ export default async function LoginPage({ searchParams }: Props) {
             </p>
           </div>
 
-          <form action={loginAction} className="space-y-6">
+          <RememberMeForm action={loginAction} hasError={!!error}>
             <div>
               <label
                 // htmlFor="email"
@@ -85,11 +87,7 @@ export default async function LoginPage({ searchParams }: Props) {
 
             <div className="flex items-center justify-between">
               <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="remember"
-                  className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2"
-                />
+                <Checkbox id="remember" name="remember" />
                 <span className="ml-2 text-sm text-gray-600">Lembrar-me</span>
               </label>
               {/* <a
@@ -108,7 +106,7 @@ export default async function LoginPage({ searchParams }: Props) {
               <span>Entrar</span>
               <ArrowRight className="size-4" />
             </Button>
-          </form>
+          </RememberMeForm>
 
           <div className="mt-8 pt-6 border-t border-gray-200">
             <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
