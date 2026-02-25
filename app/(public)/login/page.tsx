@@ -2,6 +2,7 @@ import { Tractor, Mail, ArrowRight, ShieldCheck } from "lucide-react";
 import { loginAction } from "./_action/loginAction";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "./_components/PasswordInput";
+import { parseError } from "@/utils";
 
 const inputClass =
   "w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-green-100 outline-none transition-all text-gray-900 placeholder-gray-400";
@@ -10,6 +11,7 @@ type Props = { searchParams: Promise<{ error?: string }> };
 
 export default async function LoginPage({ searchParams }: Props) {
   const { error } = await searchParams;
+  const { message, fieldErrors } = parseError(error);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50 font-sans">
@@ -39,7 +41,7 @@ export default async function LoginPage({ searchParams }: Props) {
           <form action={loginAction} className="space-y-6">
             <div>
               <label
-                htmlFor="email"
+                // htmlFor="email"
                 className="block text-sm font-semibold text-gray-700 mb-2"
               >
                 Email
@@ -57,6 +59,9 @@ export default async function LoginPage({ searchParams }: Props) {
                   className={inputClass}
                 />
               </div>
+              {fieldErrors?.email?.[0] && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.email[0]}</p>
+              )}
             </div>
 
             <div>
@@ -73,6 +78,9 @@ export default async function LoginPage({ searchParams }: Props) {
                 required
                 className={inputClass + " pr-12"}
               />
+              {fieldErrors?.password?.[0] && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.password[0]}</p>
+              )}
             </div>
 
             <div className="flex items-center justify-between">
@@ -84,18 +92,16 @@ export default async function LoginPage({ searchParams }: Props) {
                 />
                 <span className="ml-2 text-sm text-gray-600">Lembrar-me</span>
               </label>
-              <a
+              {/* <a
                 href="#"
                 className="text-sm font-semibold text-primary hover:text-primary-dark transition-colors"
               >
                 Esqueceu a senha?
-              </a>
+              </a> */}
             </div>
 
-            {error && (
-              <p className="text-sm text-red-600">
-                {decodeURIComponent(error)}
-              </p>
+            {message && (
+              <p className="text-sm text-red-600">{message}</p>
             )}
 
             <Button type="submit" className="w-full py-3.5">

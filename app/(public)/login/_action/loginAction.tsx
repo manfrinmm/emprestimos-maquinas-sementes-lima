@@ -8,7 +8,10 @@ export async function loginAction(formData: FormData) {
       email: String(formData.get("email") ?? ""),
       password: String(formData.get("password") ?? ""),
     });
-    if (result.status === 400) redirect("/login?error=" + encodeURIComponent(result.error));
+    if (result.status === 400) {
+      const err = typeof result.error === "string" ? result.error : JSON.stringify(result.error);
+      redirect("/login?error=" + encodeURIComponent(err));
+    }
     const cookieStore = await cookies();
     cookieStore.set("auth-token", result.token, { httpOnly: true, path: "/", maxAge: 60 * 60 * 24 });
     redirect("/");
