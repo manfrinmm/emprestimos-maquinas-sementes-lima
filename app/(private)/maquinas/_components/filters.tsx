@@ -85,6 +85,7 @@ export function Filters({ onSearch, isAdmin, onNewMachine }: FiltersProps) {
           </div>
           <div className="space-y-2 w-full flex justify-start">
             <Button
+              className="w-full sm:w-auto"
               variant="secondary"
               onClick={() =>
                 onSearch({
@@ -98,7 +99,7 @@ export function Filters({ onSearch, isAdmin, onNewMachine }: FiltersProps) {
             </Button>
           </div>
         <div className="space-y-2 w-full flex justify-end">
-        <Button className="shrink-0" onClick={onNewMachine}>
+        <Button className="shrink-0 w-full sm:w-auto" onClick={onNewMachine}>
           <Plus className="size-4" />
           Nova Máquina
         </Button>
