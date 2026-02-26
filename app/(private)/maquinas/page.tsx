@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { NewMachineModal } from "./_components/new-machine-modal";
+import { useDeleteMachine } from "./_hooks/deleteMachine";
 import { useListMachines, type MachineWithUser } from "./_hooks/listMachine";
 
 function statusLabel(m: MachineWithUser) {
@@ -59,7 +60,6 @@ export default function PrivateHomePage() {
   const [searchInput, setSearchInput] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
   const [newMachineOpen, setNewMachineOpen] = useState(false);
 
   const { machines, total, refetch } = useListMachines({
@@ -68,22 +68,14 @@ export default function PrivateHomePage() {
     search,
     status: statusFilter,
   });
+  const { deleteMachine, isPending: deleting } = useDeleteMachine();
 
-  const handleConfirmDelete = useCallback(async () => {
+  const handleConfirmDelete = useCallback(() => {
     if (!deleteId) return;
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/machine?id=${encodeURIComponent(deleteId)}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        setDeleteId(null);
-        refetch();
-      }
-    } finally {
-      setDeleting(false);
-    }
-  }, [deleteId, refetch]);
+    deleteMachine(deleteId, {
+      onSuccess: () => setDeleteId(null),
+    });
+  }, [deleteId, deleteMachine]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const from = total === 0 ? 0 : (page - 1) * limit + 1;
@@ -176,9 +168,6 @@ export default function PrivateHomePage() {
                 </TableCell>
                 <TableCell className="px-6 py-4">
                   <div className="flex items-center gap-2">
-                    <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold text-primary">
-                      {(m.user?.name ?? "—").slice(0, 2).toUpperCase()}
-                    </div>
                     <span className="text-sm text-foreground">{m.user?.name ?? "—"}</span>
                   </div>
                 </TableCell>
@@ -261,7 +250,7 @@ export default function PrivateHomePage() {
       <NewMachineModal open={newMachineOpen} onOpenChange={setNewMachineOpen} onCreated={refetch} />
 
       <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <DialogContent showCloseButton>
+        <DialogContent showCloseButton className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               <div className="size-10 rounded-full bg-red-100 flex items-center justify-center">
@@ -277,7 +266,7 @@ export default function PrivateHomePage() {
             </span>
             ? Esta ação não pode ser desfeita.
           </p>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-2 flex">
             <Button variant="outline" onClick={() => setDeleteId(null)}>
               Cancelar
             </Button>
@@ -286,7 +275,7 @@ export default function PrivateHomePage() {
               onClick={handleConfirmDelete}
               disabled={deleting}
             >
-              Excluir
+              {deleting ? "Excluindo..." : "Excluir"}
             </Button>
           </DialogFooter>
         </DialogContent>

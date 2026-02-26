@@ -29,3 +29,7 @@ export async function createMachine(input: CreateMachineInput): Promise<Machine>
     userId: created.userId,
   };
 }
+
+export async function deleteMachine(id: string): Promise<void> {
+  await prisma.machine.delete({ where: { id } });
+}

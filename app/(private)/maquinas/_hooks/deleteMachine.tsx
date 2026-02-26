@@ -2,29 +2,23 @@
 
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
-import type { CreateMachineInput } from "@/app/api/machine/schema";
 
-export function useCreateMachine() {
+export function useDeleteMachine() {
   const [isPending, setPending] = useState(false);
   const { mutate } = useSWRConfig();
 
-  const mutateMachine = useCallback(
+  const deleteMachine = useCallback(
     (
-      input: CreateMachineInput,
+      id: string,
       opts?: { onSuccess?: () => void; onError?: (err: Error) => void }
     ) => {
       setPending(true);
-      fetch("/api/machine", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(input),
-      })
+      fetch(`/api/machine/${id}`, { method: "DELETE" })
         .then(async (res) => {
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));
-            throw new Error(data.error ?? "Erro ao cadastrar máquina");
+            throw new Error(data.error ?? "Erro ao excluir máquina");
           }
-          return res.json();
         })
         .then(() => {
           mutate((k: unknown) => Array.isArray(k) && k[0] === "machines");
@@ -40,5 +34,5 @@ export function useCreateMachine() {
     [mutate]
   );
 
-  return { mutate: mutateMachine, isPending };
+  return { deleteMachine, isPending };
 }
