@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { decodeJwt } from "jose";
 import { deleteMachineController, updateMachineController } from "../controller";
-import { isValidToken } from "@/utils/jwt";
 
 export async function PATCH(
   req: Request,
@@ -11,7 +10,8 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
-    const result = await updateMachineController(id, body);
+    const token = (await cookies()).get("auth-token")?.value ?? null;
+    const result = await updateMachineController(id, body, token);
     if (result instanceof NextResponse) return result;
     return NextResponse.json(result, { status: 200 });
   } catch (err) {

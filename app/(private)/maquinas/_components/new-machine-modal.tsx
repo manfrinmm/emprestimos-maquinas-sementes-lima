@@ -33,6 +33,7 @@ import { useSellers } from "../_hooks/useSellers";
 const machineFormSchema = createMachineSchema.extend({
   status: z.boolean().optional(),
   maintenance: z.boolean().optional(),
+  sellerExternalId: z.string().optional(),
 });
 
 type MachineFormValues = z.infer<typeof machineFormSchema>;
@@ -51,6 +52,7 @@ const defaultValues: MachineFormValues = {
   stickerNumber: "",
   comment: "",
   userId: "",
+  sellerExternalId: "",
   status: true,
   maintenance: false,
 };
@@ -73,6 +75,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
   });
 
   const userId = watch("userId");
+  const sellerExternalId = watch("sellerExternalId");
   const status = watch("status");
   const maintenance = watch("maintenance");
   const isAdmin = useUserCanAccess("admin");
@@ -87,6 +90,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
           stickerNumber: machine.stickerNumber,
           comment: machine.comment ?? "",
           userId: machine.userId ?? "",
+          sellerExternalId: machine.user?.externalId ?? "",
           status: machine.status,
           maintenance: machine.maintenance,
         });
@@ -105,7 +109,9 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
           serialNumber: data.serialNumber,
           stickerNumber: data.stickerNumber,
           comment: data.comment ?? "",
-          userId: data.userId || null,
+          ...(isAdmin
+            ? { sellerExternalId: data.sellerExternalId || null }
+            : { userId: data.userId || null }),
           status: data.status ?? true,
           maintenance: data.maintenance ?? false,
         },
@@ -124,7 +130,9 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
         serialNumber: data.serialNumber,
         stickerNumber: data.stickerNumber,
         comment: data.comment,
-        userId: data.userId,
+        ...(isAdmin && data.sellerExternalId
+          ? { sellerExternalId: data.sellerExternalId }
+          : { userId: data.userId }),
         status: data.status ?? true,
         maintenance: data.maintenance ?? false,
       };
@@ -275,11 +283,11 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
             </div>
             {isAdmin && (
             <div className="md:col-span-2">
-              <label htmlFor="userId" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="seller" className="block text-sm font-semibold text-gray-700 mb-2">
                 Vendedor
               </label>
-              <Select value={userId} onValueChange={(v) => setValue("userId", v)}>
-                <SelectTrigger className={cn("relative w-full pl-10 h-11 border-2 rounded-lg", errors.userId && inputErrorClass)}>
+              <Select value={sellerExternalId} onValueChange={(v) => setValue("sellerExternalId", v)}>
+                <SelectTrigger className={cn("relative w-full pl-10 h-11 border-2 rounded-lg", errors.sellerExternalId && inputErrorClass)}>
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
                     <User className="size-4 text-muted-foreground" />
                   </span>
@@ -293,8 +301,8 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
                   ))}
                 </SelectContent>
               </Select>
-              {errors.userId && (
-                <p className="text-sm text-destructive mt-1">{errors.userId.message}</p>
+              {errors.sellerExternalId && (
+                <p className="text-sm text-destructive mt-1">{errors.sellerExternalId.message}</p>
               )}
             </div>
             )}

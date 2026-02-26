@@ -3,7 +3,7 @@
 import useSWR from "swr";
 import { fetchWithAuth } from "@/app/(private)/_utils/fetchWithAuth";
 
-export type SellerOption = { id: string; name: string };
+export type SellerOption = { id: string; name: string; email: string };
 
 const fetcher = async (url: string): Promise<SellerOption[]> => {
   const res = await fetchWithAuth(url);

@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import { getSellers } from "./service";
-import { Seller } from "./type";
 import { decodeJwt } from "jose";
 import { NextResponse } from "next/server";
 

@@ -7,5 +7,5 @@ export type Machine = {
   status: boolean;
   maintenance: boolean;
   userId: string | null;
-  user?: { id: string; name: string } | null;
+  user?: { id: string; name: string; externalId: string } | null;
 };

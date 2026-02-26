@@ -6,6 +6,7 @@ export const createMachineSchema = z.object({
   stickerNumber: z.string().min(1, "Número do adesivo é obrigatório").max(255, "Número do adesivo deve ter no máximo 255 caracteres"),
   comment: z.string().max(1000, "Comentário deve ter no máximo 1000 caracteres").optional(),
   userId: z.string().max(25, "ID do usuário deve ter no máximo 25 caracteres").optional(),
+  sellerExternalId: z.string().optional(),
   status: z.boolean().optional(),
   maintenance: z.boolean().optional(),
 });
@@ -18,6 +19,7 @@ export const updateMachineSchema = z.object({
   stickerNumber: z.string().min(1).max(255).optional(),
   comment: z.string().max(1000).optional(),
   userId: z.string().max(25).nullable().optional(),
+  sellerExternalId: z.string().nullable().optional(),
   status: z.boolean().optional(),
   maintenance: z.boolean().optional(),
 });

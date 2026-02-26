@@ -6,16 +6,7 @@ import { createMachineController, getMachinesController } from "./controller";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const token = (await cookies()).get("auth-token")?.value ?? null;
-    if (token) {
-      const payload = decodeJwt(token) as { id?: string; role?: string };
-      if (payload.role === "seller" && payload.id) {
-        const user = await prisma.user.findUnique({ where: { externalId: payload.id } });
-        if (user) body.userId = user.id;
-      }
-    }
-    const result = await createMachineController(body);
+    const result = await createMachineController(req);
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
     console.error("[POST /api/machine]", err);
