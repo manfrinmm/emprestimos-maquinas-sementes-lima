@@ -6,6 +6,8 @@ export const createMachineSchema = z.object({
   stickerNumber: z.string().min(1, "Número do adesivo é obrigatório").max(255, "Número do adesivo deve ter no máximo 255 caracteres"),
   comment: z.string().max(1000, "Comentário deve ter no máximo 1000 caracteres").optional(),
   userId: z.string().max(25, "ID do usuário deve ter no máximo 25 caracteres").optional(),
+  status: z.boolean().optional(),
+  maintenance: z.boolean().optional(),
 });
 
 export type CreateMachineInput = z.infer<typeof createMachineSchema>;

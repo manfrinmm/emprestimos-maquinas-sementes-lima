@@ -5,7 +5,10 @@ export const roleLabels: Record<string, string> = {
     admin: 'Administrador',
 }
 
-export const userCanAccess = (roleNeeded: string): boolean => {
+export const checkUserCanAccess = (user: { role?: string } | null, roleNeeded: string): boolean =>
+    user?.role === roleNeeded || user?.role === 'admin';
+
+export const useUserCanAccess = (roleNeeded: string): boolean => {
     const { user } = useUserStore();
-    return user?.role === roleNeeded || user?.role === 'admin';
+    return checkUserCanAccess(user, roleNeeded);
 }

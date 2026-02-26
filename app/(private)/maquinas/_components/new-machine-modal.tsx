@@ -27,7 +27,7 @@ import { useUpdateMachine } from "../_hooks/updateMachine";
 import { Machine } from "@/app/api/machine/type";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
-import { userCanAccess } from "@/utils/user";
+import { useUserCanAccess } from "@/utils/user";
 import { useSellers } from "../_hooks/useSellers";
 
 const machineFormSchema = createMachineSchema.extend({
@@ -75,7 +75,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
   const userId = watch("userId");
   const status = watch("status");
   const maintenance = watch("maintenance");
-  const isAdmin = userCanAccess("admin");
+  const isAdmin = useUserCanAccess("admin");
   const { sellers } = useSellers(open && isAdmin);
 
   useEffect(() => {
@@ -125,6 +125,8 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
         stickerNumber: data.stickerNumber,
         comment: data.comment,
         userId: data.userId,
+        status: data.status ?? true,
+        maintenance: data.maintenance ?? false,
       };
       createMachine.mutate(createPayload, {
         onSuccess: () => {

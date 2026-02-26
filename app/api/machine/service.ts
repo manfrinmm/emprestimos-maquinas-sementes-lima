@@ -3,7 +3,9 @@ import type { CreateMachineInput, UpdateMachineInput } from "./schema";
 import { Machine } from "./type";
 
 export async function getMachines(): Promise<Machine[]> {
-  return await prisma.machine.findMany();
+  return prisma.machine.findMany({
+    include: { user: { select: { id: true, name: true } } },
+  }) as Promise<Machine[]>;
 }
 
 export async function createMachine(input: CreateMachineInput): Promise<Machine> {
@@ -13,8 +15,8 @@ export async function createMachine(input: CreateMachineInput): Promise<Machine>
       serialNumber: input.serialNumber,
       stickerNumber: input.stickerNumber,
       comment: input.comment ?? "",
-      status: true,
-      maintenance: false,
+      status: input.status ?? true,
+      maintenance: input.maintenance ?? false,
       ...(input.userId ? { userId: input.userId } : {}),
     },
   });

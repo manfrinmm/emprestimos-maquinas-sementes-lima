@@ -6,9 +6,10 @@ import { statusClass, statusLabel } from "../_utils";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { Machine } from "@/app/api/machine/type";
-import { userCanAccess } from "@/utils/user";
+import { useUserCanAccess } from "@/utils/user";
 
 export default function TableDesktop({ machines, setDeleteId, onEdit }: { machines: Machine[]; setDeleteId: (id: string) => void; onEdit: (m: Machine) => void }) {
+	const isAdmin = useUserCanAccess('admin');
 	return (
 		<Table>
 			<TableHeader>
@@ -74,7 +75,7 @@ export default function TableDesktop({ machines, setDeleteId, onEdit }: { machin
 								<Button variant="ghost" size="icon-sm" onClick={() => onEdit(m)}>
 									<Pencil className="size-4 text-blue-600" />
 								</Button>
-								{userCanAccess('admin') && (
+								{isAdmin && (
 								<Button
 									variant="ghost"
 									size="icon-sm"

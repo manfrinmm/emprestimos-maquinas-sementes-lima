@@ -1,16 +1,10 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Search, Plus, AlertTriangle } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Plus, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Dialog,
   DialogContent,
@@ -19,28 +13,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { cn } from "@/lib/utils";
 import { NewMachineModal } from "./_components/new-machine-modal";
 import { useDeleteMachine } from "./_hooks/deleteMachine";
 import { Machine } from "@/app/api/machine/type";
 import { useListMachines} from "./_hooks/listMachine";
 import { MobileCard } from "./_components/mobile-card";
-import TableDesktop from "./_components/table-desktop";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+
+const TableDesktop = dynamic(
+  () => import("./_components/table-desktop").then((m) => m.default),
+  { ssr: false }
+);
+
 
 
 export default function PrivateHomePage() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [search, setSearch] = useState("");
-  const [searchInput, setSearchInput] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editMachine, setEditMachine] = useState<Machine | null>(null);
@@ -62,15 +51,12 @@ export default function PrivateHomePage() {
     });
   }, [deleteId, deleteMachine]);
 
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-  const from = total === 0 ? 0 : (page - 1) * limit + 1;
-  const to = Math.min(page * limit, total);
 
   return (
     <div className="py-6 md:py-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="relative w-full sm:w-80">
+          {/* <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
               placeholder="Buscar máquina..."
@@ -79,8 +65,8 @@ export default function PrivateHomePage() {
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && setSearch(searchInput)}
             />
-          </div>
-          <Button variant="outline" size="sm" onClick={() => setSearch(searchInput)}>
+          </div> */}
+          {/* <Button variant="outline" size="sm" onClick={() => setSearch(searchInput)}>
             Buscar
           </Button>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -93,7 +79,7 @@ export default function PrivateHomePage() {
               <SelectItem value="inactive">Desativada</SelectItem>
               <SelectItem value="maintenance">Em manutenção</SelectItem>
             </SelectContent>
-          </Select>
+          </Select> */}
         </div>
         <Button className="shrink-0" onClick={() => setNewMachineOpen(true)}>
           <Plus className="size-4" />
@@ -115,7 +101,7 @@ export default function PrivateHomePage() {
         </p>
       )}
 
-      {total > 0 && (
+      {/* {total > 0 && (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mt-6">
           <p className="text-sm text-muted-foreground flex gap-1">
             Mostrando <span className="font-medium">{from}</span> a{" "}
@@ -170,7 +156,7 @@ export default function PrivateHomePage() {
             </PaginationContent>
           </Pagination>
         </div>
-      )}
+      )} */}
 
       <NewMachineModal
         machine={editMachine ?? undefined}
