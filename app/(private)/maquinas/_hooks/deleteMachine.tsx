@@ -2,7 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
-import { toast } from "sonner";
+import { toast } from "@/app/(private)/_utils/toast";
+import { fetchWithAuth } from "@/app/(private)/_utils/fetchWithAuth";
 
 export function useDeleteMachine() {
   const [isPending, setPending] = useState(false);
@@ -14,7 +15,7 @@ export function useDeleteMachine() {
       opts?: { onSuccess?: () => void; onError?: (err: Error) => void }
     ) => {
       setPending(true);
-      fetch(`/api/machine/${id}`, { method: "DELETE", credentials: "include" })
+      fetchWithAuth(`/api/machine/${id}`, { method: "DELETE" })
         .then(async (res) => {
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));

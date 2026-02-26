@@ -2,6 +2,7 @@
 
 import { Machine } from "@/app/api/machine/type";
 import useSWR from "swr";
+import { fetchWithAuth } from "@/app/(private)/_utils/fetchWithAuth";
 
 export type ListMachinesParams = {
   page: number;
@@ -19,7 +20,7 @@ export const machinesListKey = (params: ListMachinesParams) =>
   ["machines", params.page, params.limit, params.search ?? "", params.status ?? "all"] as const;
 
 const fetcher = async (url: string): Promise<ListMachinesResult> => {
-  const res = await fetch(url);
+  const res = await fetchWithAuth(url);
   if (!res.ok) throw new Error("Erro ao buscar máquinas");
   const json = await res.json();
   return {

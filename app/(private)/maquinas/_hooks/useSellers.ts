@@ -1,11 +1,12 @@
 "use client";
 
 import useSWR from "swr";
+import { fetchWithAuth } from "@/app/(private)/_utils/fetchWithAuth";
 
 export type SellerOption = { id: string; name: string };
 
 const fetcher = async (url: string): Promise<SellerOption[]> => {
-  const res = await fetch(url);
+  const res = await fetchWithAuth(url);
   if (!res.ok) return [];
   const data = await res.json();
   return Array.isArray(data) ? data : (data?.data ?? []) ?? [];

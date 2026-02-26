@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useSWRConfig } from "swr";
 import type { UpdateMachineInput } from "@/app/api/machine/schema";
+import { fetchWithAuth } from "@/app/(private)/_utils/fetchWithAuth";
 
 export function useUpdateMachine() {
   const [isPending, setPending] = useState(false);
@@ -15,7 +16,7 @@ export function useUpdateMachine() {
       opts?: { onSuccess?: () => void; onError?: (err: Error) => void }
     ) => {
       setPending(true);
-      fetch(`/api/machine/${id}`, {
+      fetchWithAuth(`/api/machine/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),

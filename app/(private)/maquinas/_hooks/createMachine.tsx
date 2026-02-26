@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
 import type { CreateMachineInput } from "@/app/api/machine/schema";
+import { fetchWithAuth } from "@/app/(private)/_utils/fetchWithAuth";
 
 export function useCreateMachine() {
   const [isPending, setPending] = useState(false);
@@ -14,7 +15,7 @@ export function useCreateMachine() {
       opts?: { onSuccess?: () => void; onError?: (err: Error) => void }
     ) => {
       setPending(true);
-      fetch("/api/machine", {
+      fetchWithAuth("/api/machine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
