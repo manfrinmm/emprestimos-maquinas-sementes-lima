@@ -260,7 +260,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
                   rows={3}
                   className={cn(
                     "flex w-full rounded-lg border-2 border-input bg-transparent px-3 py-2 pl-10 text-sm shadow-xs transition-[color,box-shadow] outline-none resize-none",
-                    "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                    "focus:border-primary focus:ring-4 focus:ring-green-100 focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-green-100",
                     "placeholder:text-muted-foreground disabled:opacity-50",
                     errors.comment && inputErrorClass
                   )}
