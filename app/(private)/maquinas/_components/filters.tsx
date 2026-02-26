@@ -13,6 +13,7 @@ import {
 import { statusOptions } from "@/utils/machine";
 import { useState } from "react";
 import { useSellers } from "../_hooks/useSellers";
+import { Plus } from "lucide-react";
 
 
 export type FiltersValues = {
@@ -23,24 +24,27 @@ export type FiltersValues = {
 
 type FiltersProps = {
   onSearch: (values: FiltersValues) => void;
+  isAdmin: boolean;
+  onNewMachine: () => void;
 };
 
-export function Filters({ onSearch }: FiltersProps) {
-
+export function Filters({ onSearch, isAdmin, onNewMachine }: FiltersProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchFilter, setSearchFilter] = useState<string>("");
   const [sellerFilter, setSellerFilter] = useState<string>("all");
 
-  const { sellers } = useSellers(true);
+
+  const { sellers } = useSellers(isAdmin);
 
   return (
-    <Card className="mb-8">
-      <CardContent>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 items-end">
+    <div className="mb-8">
+      <CardContent className="p-0">
+        <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${isAdmin ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} items-end`}>
+          {isAdmin && (
           <div className="space-y-2">
             <label className="text-sm font-medium leading-none">Vendedor</label>
             <Select value={sellerFilter} onValueChange={setSellerFilter}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full bg-white">
                 <SelectValue placeholder="Vendedor" />
               </SelectTrigger>
               <SelectContent>
@@ -54,10 +58,11 @@ export function Filters({ onSearch }: FiltersProps) {
               </SelectContent>
             </Select>
           </div>
+          )}
           <div className="space-y-2">
             <label className="text-sm font-medium leading-none">Status</label>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full bg-white">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -75,10 +80,10 @@ export function Filters({ onSearch }: FiltersProps) {
               placeholder="Nome/Série/Adesivo..."
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              className="w-full"
+              className="w-full bg-white"
             />
           </div>
-          <div className="space-y-2 w-full flex justify-end">
+          <div className="space-y-2 w-full flex justify-start">
             <Button
               variant="secondary"
               onClick={() =>
@@ -92,8 +97,14 @@ export function Filters({ onSearch }: FiltersProps) {
               Buscar
             </Button>
           </div>
+        <div className="space-y-2 w-full flex justify-end">
+        <Button className="shrink-0" onClick={onNewMachine}>
+          <Plus className="size-4" />
+          Nova Máquina
+        </Button>
+        </div>
         </div>
       </CardContent>
-    </Card>
+    </div>
   );
 }

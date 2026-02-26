@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { Plus, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -53,13 +53,13 @@ export default function PrivateHomePage() {
     <div className="py-6 md:py-8">
       {isAdmin && <DashCards machines={machines} total={total} />}
 
-      {isAdmin && (
-        <Filters
-          onSearch={(values) => {
-            refetch(values);
-          }}
-        />
-      )}
+      <Filters
+        isAdmin={isAdmin}
+        onSearch={(values) => {
+          refetch(values);
+        }}
+        onNewMachine={() => setNewMachineOpen(true)}
+      />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div className="flex flex-wrap items-center gap-3">
@@ -88,10 +88,6 @@ export default function PrivateHomePage() {
             </SelectContent>
           </Select> */}
         </div>
-        <Button className="shrink-0" onClick={() => setNewMachineOpen(true)}>
-          <Plus className="size-4" />
-          Nova Máquina
-        </Button>
       </div>
 
       <div className="hidden md:block rounded-lg border bg-card shadow-sm overflow-hidden">
