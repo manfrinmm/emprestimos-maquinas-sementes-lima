@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createMachineSchema, UpdateMachineInput, updateMachineSchema } from "./schema";
+import { createMachineSchema, listMachinesQuerySchema, UpdateMachineInput, updateMachineSchema } from "./schema";
 import { createMachine, deleteMachine, getMachines, updateMachine } from "./service";
 import { Machine } from "./type";
 import { cookies } from "next/headers";
@@ -18,9 +18,11 @@ export async function createMachineController(req: Request): Promise<Machine | N
   return await createMachine(parsed.data, token);
 }
 
-export async function getMachinesController(): Promise<Machine[] | NextResponse> {
+export async function getMachinesController(searchParams: URLSearchParams): Promise<{ machines: Machine[]; total: number } | NextResponse> {
   const token = (await cookies()).get("auth-token")?.value ?? null;
-  return await getMachines(token);
+  const parsed = listMachinesQuerySchema.safeParse(Object.fromEntries(searchParams));
+  const query = parsed.success ? parsed.data : { page: 1, limit: 10, status: "all" as const };
+  return await getMachines(token, query);
 }
 
 export async function updateMachineController(id: string, body: UpdateMachineInput, token: string | null = null): Promise<Machine | NextResponse> {

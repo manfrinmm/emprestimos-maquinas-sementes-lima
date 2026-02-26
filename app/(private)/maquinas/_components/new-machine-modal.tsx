@@ -74,7 +74,6 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
     defaultValues,
   });
 
-  const userId = watch("userId");
   const sellerExternalId = watch("sellerExternalId");
   const status = watch("status");
   const maintenance = watch("maintenance");

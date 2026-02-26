@@ -16,7 +16,8 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
-    const result = await getMachinesController();
+    const { searchParams } = new URL(req.url);
+    const result = await getMachinesController(searchParams);
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
     console.error("[GET /api/machine]", err);

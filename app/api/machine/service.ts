@@ -1,5 +1,6 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../(prisma)";
-import type { CreateMachineInput, UpdateMachineInput } from "./schema";
+import type { CreateMachineInput, ListMachinesQuery, UpdateMachineInput } from "./schema";
 import { Machine } from "./type";
 import { getSellers } from "../sellers/service";
 import { getPayload } from "@/utils/jwt";
@@ -45,16 +46,58 @@ async function resolveUserId(
   return undefined;
 }
 
-export async function getMachines(token: string | null = null): Promise<Machine[]> {
-  const { role = '', id } = getPayload(token!);
-  const where =
-    normalUserRoles.includes(role) && id
-      ? { user: { externalId: id } }
+export async function getMachines(
+  token: string | null = null,
+  query: ListMachinesQuery = { page: 1, limit: 10, status: "all" }
+): Promise<{ machines: Machine[]; total: number }> {
+  const { role = "", id } = token ? getPayload(token) : { role: "", id: undefined };
+  const baseWhere: Prisma.MachineWhereInput =
+    normalUserRoles.includes(role) && id ? { user: { externalId: id } } : {};
+
+  const statusWhere: Prisma.MachineWhereInput =
+    query.status === "active"
+      ? { status: true, maintenance: false }
+      : query.status === "inactive"
+        ? { status: false }
+        : query.status === "maintenance"
+          ? { maintenance: true }
+          : {};
+
+  const searchWhere: Prisma.MachineWhereInput =
+    query.search?.trim()
+      ? {
+          OR: [
+            { name: { contains: query.search.trim(), mode: "insensitive" } },
+            { serialNumber: { contains: query.search.trim(), mode: "insensitive" } },
+            { stickerNumber: { contains: query.search.trim(), mode: "insensitive" } },
+          ],
+        }
       : {};
-  return prisma.machine.findMany({
-    where,
-    include: { user: { select: { id: true, name: true, externalId: true } } },
-  }) as Promise<Machine[]>;
+
+  const sellerWhere: Prisma.MachineWhereInput = query.sellerId
+    ? query.sellerId === "-1"
+      ? { userId: null }
+      : { user: { externalId: query.sellerId } }
+    : {};
+
+  const where: Prisma.MachineWhereInput = {
+    ...baseWhere,
+    ...statusWhere,
+    ...searchWhere,
+    ...sellerWhere,
+  };
+
+  const [machines, total] = await Promise.all([
+    prisma.machine.findMany({
+      where,
+      include: { user: { select: { id: true, name: true, externalId: true } } },
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+    }),
+    prisma.machine.count({ where }),
+  ]);
+
+  return { machines: machines as Machine[], total };
 }
 
 export async function createMachine(input: CreateMachineInput, token: string | null = null): Promise<Machine> {

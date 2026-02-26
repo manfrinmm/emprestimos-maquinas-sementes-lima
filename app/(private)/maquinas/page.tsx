@@ -16,30 +16,26 @@ import {
 import { NewMachineModal } from "./_components/new-machine-modal";
 import { useDeleteMachine } from "./_hooks/deleteMachine";
 import { Machine } from "@/app/api/machine/type";
-import { useListMachines} from "./_hooks/listMachine";
+import { useListMachines } from "./_hooks/listMachine";
 import { MobileCard } from "./_components/mobile-card";
+import { DashCards } from "./_components/dash-cards";
+import { Filters } from "./_components/filters";
+import { useUserStore } from "@/store/user";
+import { adminUserRoles } from "@/utils/user";
 
 const TableDesktop = dynamic(
   () => import("./_components/table-desktop").then((m) => m.default),
   { ssr: false }
 );
 
-
-
 export default function PrivateHomePage() {
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editMachine, setEditMachine] = useState<Machine | null>(null);
   const [newMachineOpen, setNewMachineOpen] = useState(false);
 
   const { machines, total, refetch } = useListMachines({
-    page,
-    limit,
-    search,
-    status: statusFilter,
+    page: 1,
+    limit: 10,
   });
   const { deleteMachine, isPending: deleting } = useDeleteMachine();
 
@@ -51,9 +47,20 @@ export default function PrivateHomePage() {
     });
   }, [deleteId, deleteMachine]);
 
-
+  const { user } = useUserStore();
+  const isAdmin = adminUserRoles.includes(user?.role || '');
   return (
     <div className="py-6 md:py-8">
+      {isAdmin && <DashCards machines={machines} total={total} />}
+
+      {isAdmin && (
+        <Filters
+          onSearch={(values) => {
+            refetch(values);
+          }}
+        />
+      )}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div className="flex flex-wrap items-center gap-3">
           {/* <div className="relative w-full sm:w-80">
@@ -88,11 +95,11 @@ export default function PrivateHomePage() {
       </div>
 
       <div className="hidden md:block rounded-lg border bg-card shadow-sm overflow-hidden">
-       <TableDesktop machines={machines} setDeleteId={setDeleteId} onEdit={setEditMachine} />
+        <TableDesktop machines={machines} setDeleteId={setDeleteId} onEdit={setEditMachine} />
       </div>
 
       <div className="md:hidden space-y-4">
-       <MobileCard machines={machines} setDeleteId={setDeleteId} onEdit={setEditMachine} />
+        <MobileCard machines={machines} setDeleteId={setDeleteId} onEdit={setEditMachine} />
       </div>
 
       {machines.length === 0 && (
