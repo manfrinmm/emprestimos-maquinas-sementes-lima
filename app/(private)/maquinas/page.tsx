@@ -1,16 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import Link from "next/link";
-import {
-  Search,
-  Plus,
-  Pencil,
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-  AlertTriangle,
-} from "lucide-react";
+import { Search, Plus, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -27,31 +18,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+
 import { cn } from "@/lib/utils";
 import { NewMachineModal } from "./_components/new-machine-modal";
 import { useDeleteMachine } from "./_hooks/deleteMachine";
-import { useListMachines, type MachineWithUser } from "./_hooks/listMachine";
+import { useListMachines} from "./_hooks/listMachine";
+import { MobileCard } from "./_components/mobile-card";
+import TableDesktop from "./_components/table-desktop";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
-function statusLabel(m: MachineWithUser) {
-  if (m.maintenance) return "Manutenção";
-  if (!m.status) return "Emprestada";
-  return "Disponível";
-}
-
-function statusClass(m: MachineWithUser) {
-  if (m.maintenance)
-    return "bg-amber-100 text-amber-800 [&_svg]:text-amber-500";
-  if (!m.status) return "bg-yellow-100 text-yellow-800 [&_svg]:text-yellow-500";
-  return "bg-green-100 text-green-800 [&_svg]:text-green-500";
-}
 
 export default function PrivateHomePage() {
   const [page, setPage] = useState(1);
@@ -116,87 +98,12 @@ export default function PrivateHomePage() {
         </Button>
       </div>
 
-      <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50 hover:bg-muted/50">
-              <TableHead className="px-6 py-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Nome
-              </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Nº de Série
-              </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Nº do Adesivo
-              </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Status
-              </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Vendedor
-              </TableHead>
-              <TableHead className="px-6 py-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Observação
-              </TableHead>
-              <TableHead className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Ações
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {machines.map((m) => (
-              <TableRow key={m.id} className="hover:bg-muted/30">
-                <TableCell className="px-6 py-4 font-semibold text-foreground">
-                  {m.name}
-                </TableCell>
-                <TableCell className="px-6 py-4 text-foreground">
-                  {m.serialNumber}
-                </TableCell>
-                <TableCell className="px-6 py-4 text-foreground">
-                  {m.stickerNumber}
-                </TableCell>
-                <TableCell className="px-6 py-4">
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
-                      statusClass(m)
-                    )}
-                  >
-                    <span className="size-1.5 rounded-full bg-current opacity-70" />
-                    {statusLabel(m)}
-                  </span>
-                </TableCell>
-                <TableCell className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-foreground">{m.user?.name ?? "—"}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="px-6 py-4 max-w-xs">
-                  <span className="text-sm text-muted-foreground truncate block" title={m.comment}>
-                    {m.comment || "—"}
-                  </span>
-                </TableCell>
-                <TableCell className="px-6 py-4 text-right">
-                  <div className="flex items-center gap-1 justify-end">
-                    <Button variant="ghost" size="icon-sm" asChild>
-                      <Link href={`/maquinas/${m.id}/editar`}>
-                        <Pencil className="size-4 text-blue-600" />
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => setDeleteId(m.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="hidden md:block rounded-lg border bg-card shadow-sm overflow-hidden">
+       <TableDesktop machines={machines} setDeleteId={setDeleteId} />
+      </div>
+
+      <div className="md:hidden space-y-4">
+       <MobileCard machines={machines} setDeleteId={setDeleteId} />
       </div>
 
       {machines.length === 0 && (
@@ -207,50 +114,65 @@ export default function PrivateHomePage() {
 
       {total > 0 && (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mt-6">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground flex gap-1">
             Mostrando <span className="font-medium">{from}</span> a{" "}
             <span className="font-medium">{to}</span> de{" "}
             <span className="font-medium">{total}</span> resultados
           </p>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon-sm"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const p = totalPages <= 5 ? i + 1 : page <= 3 ? i + 1 : page - 2 + i;
-              if (p > totalPages) return null;
-              return (
-                <Button
-                  key={p}
-                  variant={p === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setPage(p)}
-                >
-                  {p}
-                </Button>
-              );
-            })}
-            <Button
-              variant="outline"
-              size="icon-sm"
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            >
-              <ChevronRight className="size-4" />
-            </Button>
-          </div>
+          <Pagination className="sm:justify-end w-full">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page > 1) setPage((p) => p - 1);
+                  }}
+                  className={cn(page <= 1 && "pointer-events-none opacity-50")}
+                  aria-disabled={page <= 1}
+                />
+              </PaginationItem>
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const p =
+                  totalPages <= 5 ? i + 1 : page <= 3 ? i + 1 : page - 2 + i;
+                if (p > totalPages) return null;
+                return (
+                  <PaginationItem key={p}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(p);
+                      }}
+                      isActive={p === page}
+                    >
+                      {p}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page < totalPages) setPage((p) => p + 1);
+                  }}
+                  className={cn(
+                    page >= totalPages && "pointer-events-none opacity-50"
+                  )}
+                  aria-disabled={page >= totalPages}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       )}
 
       <NewMachineModal open={newMachineOpen} onOpenChange={setNewMachineOpen} onCreated={refetch} />
 
       <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <DialogContent showCloseButton className="max-w-2xl">
+        <DialogContent showCloseButton className="w-2xl max-x-[90vw] ">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               <div className="size-10 rounded-full bg-red-100 flex items-center justify-center">

@@ -1,18 +1,7 @@
 "use client";
 
+import { Machine } from "@/app/api/machine/type";
 import useSWR from "swr";
-
-export type MachineWithUser = {
-  id: string;
-  name: string;
-  serialNumber: string;
-  stickerNumber: string;
-  comment: string;
-  status: boolean;
-  maintenance: boolean;
-  userId: string | null;
-  user?: { id: string; name: string } | null;
-};
 
 export type ListMachinesParams = {
   page: number;
@@ -22,7 +11,7 @@ export type ListMachinesParams = {
 };
 
 export type ListMachinesResult = {
-  machines: MachineWithUser[];
+  machines: Machine[];
   total: number;
 };
 
