@@ -12,3 +12,7 @@ export const useUserCanAccess = (roleNeeded: string): boolean => {
     const { user } = useUserStore();
     return checkUserCanAccess(user, roleNeeded);
 }
+
+export const normalUserRoles = ['seller'];
+
+export const adminUserRoles = ['admin', 'order_manager'];

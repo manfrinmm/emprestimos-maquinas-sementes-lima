@@ -57,7 +57,7 @@ export function MobileCard({ machines, setDeleteId, onEdit }: { machines: Machin
 				<CardContent className="px-4 pt-0 space-y-2">
 					<p className="text-sm text-muted-foreground flex items-center gap-2">
 						<User className="size-4 text-muted-foreground shrink-0" />
-						<span className="font-medium text-foreground">Vendedor:</span> {m.user?.name ?? "—"}
+						<span className="font-medium text-foreground">Vendedor:</span> {m.user?.name ?? "- Não atribuído -"}
 					</p>
 					<p className="text-sm text-muted-foreground flex items-center gap-2">
 						<ClipboardList className="size-4 text-muted-foreground shrink-0" />

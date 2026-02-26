@@ -13,3 +13,7 @@ export function isTokenExpired(token: string): boolean {
   export function isValidToken(token: string | null): boolean {
     return token !== null && token.length > 0 && !isTokenExpired(token);
   }
+
+  export function getPayload(token: string): { id?: string; role?: string } {
+    return decodeJwt(token) as { id?: string; role?: string };
+  }

@@ -32,7 +32,7 @@ const navItems = [
   { href: "/emprestimos", label: "Empréstimos", icon: Handshake },
   { href: "/maquinas", label: "Máquinas", icon: TractorIcon },
   { href: "/historico", label: "Histórico", icon: History },
-  { href: "/gestao", label: "Gestão", icon: Users },
+  // { href: "/gestao", label: "Gestão", icon: Users },
 ] as const;
 
 function NavLink({

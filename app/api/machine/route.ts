@@ -1,7 +1,4 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { decodeJwt } from "jose";
-import { prisma } from "../(prisma)";
 import { createMachineController, getMachinesController } from "./controller";
 
 export async function POST(req: Request) {

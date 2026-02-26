@@ -19,7 +19,8 @@ export async function createMachineController(req: Request): Promise<Machine | N
 }
 
 export async function getMachinesController(): Promise<Machine[] | NextResponse> {
-  return await getMachines();
+  const token = (await cookies()).get("auth-token")?.value ?? null;
+  return await getMachines(token);
 }
 
 export async function updateMachineController(id: string, body: UpdateMachineInput, token: string | null = null): Promise<Machine | NextResponse> {

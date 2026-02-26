@@ -2,7 +2,8 @@ import { prisma } from "../(prisma)";
 import type { CreateMachineInput, UpdateMachineInput } from "./schema";
 import { Machine } from "./type";
 import { getSellers } from "../sellers/service";
-import { decodeJwt } from "jose";
+import { getPayload } from "@/utils/jwt";
+import { normalUserRoles } from "@/utils/user";
 
 async function resolveUserIdFromSellerExternalId(
   sellerExternalId: string,
@@ -30,9 +31,9 @@ async function resolveUserId(
   input: { sellerExternalId?: string | null; userId?: string | null }
 ): Promise<string | null | undefined> {
   if (token) {
-    const payload = decodeJwt(token) as { id?: string; role?: string };
-    if (payload.role === "seller" && payload.id) {
-      return resolveUserIdFromSellerExternalId(payload.id, token);
+    const { role, id } = getPayload(token);
+    if (role === "seller" && id) {
+      return resolveUserIdFromSellerExternalId(id, token);
     }
   }
   if (input.sellerExternalId !== undefined) {
@@ -44,8 +45,14 @@ async function resolveUserId(
   return undefined;
 }
 
-export async function getMachines(): Promise<Machine[]> {
+export async function getMachines(token: string | null = null): Promise<Machine[]> {
+  const { role = '', id } = getPayload(token!);
+  const where =
+    normalUserRoles.includes(role) && id
+      ? { user: { externalId: id } }
+      : {};
   return prisma.machine.findMany({
+    where,
     include: { user: { select: { id: true, name: true, externalId: true } } },
   }) as Promise<Machine[]>;
 }
