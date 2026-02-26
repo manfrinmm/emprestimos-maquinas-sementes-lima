@@ -41,4 +41,6 @@ model Machine {
 enum UserRole {
   admin
   seller
+  production
+  order_manager
 }

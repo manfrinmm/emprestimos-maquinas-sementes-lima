@@ -1,8 +1,6 @@
+import { UserRole } from "@prisma/client";
 import { prisma } from "../(prisma)";
 import type { User } from "./type";
-
-const toUserRole = (role: string): "admin" | "seller" =>
-  role?.toLowerCase() === "admin" ? "admin" : "seller";
 
 export async function createOrUpdateUser(user: User) {
   const existingUser = user.id
@@ -16,7 +14,7 @@ export async function createOrUpdateUser(user: User) {
       externalId: user.id,
       name: user.name,
       email: user.email,
-      role: toUserRole(user.role),
+      role: user.role.toLowerCase() as UserRole,
     },
   });
   return newUser;

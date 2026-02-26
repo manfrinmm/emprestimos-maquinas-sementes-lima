@@ -56,8 +56,6 @@ export function useListMachines(params: { page: number; limit: number }) {
     revalidateOnFocus: false,
   });
 
-  console.log(filters)
-
   const refetch = useCallback(
     (values?: FiltersValues) => {
       if (values) setFilters(values);

@@ -8,10 +8,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const body = await req.json();
-    const token = (await cookies()).get("auth-token")?.value ?? null;
-    const result = await updateMachineController(id, body, token);
+    const result = await updateMachineController(req, { params });
     if (result instanceof NextResponse) return result;
     return NextResponse.json(result, { status: 200 });
   } catch (err) {

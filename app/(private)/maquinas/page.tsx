@@ -13,18 +13,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { NewMachineModal } from "./_components/new-machine-modal";
+import { NewMachineModal } from "./_components/newMachineModal";
 import { useDeleteMachine } from "./_hooks/deleteMachine";
 import { Machine } from "@/app/api/machine/type";
 import { useListMachines } from "./_hooks/listMachine";
-import { MobileCard } from "./_components/mobile-card";
-import { DashCards } from "./_components/dash-cards";
+import { MobileCard } from "./_components/mobileCard";
+import { DashCards } from "./_components/dashCards";
 import { Filters } from "./_components/filters";
 import { useUserStore } from "@/store/user";
 import { adminUserRoles } from "@/utils/user";
 
 const TableDesktop = dynamic(
-  () => import("./_components/table-desktop").then((m) => m.default),
+  () => import("./_components/tableDesktop").then((m) => m.default),
   { ssr: false }
 );
 
