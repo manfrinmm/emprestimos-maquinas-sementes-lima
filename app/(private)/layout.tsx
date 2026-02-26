@@ -11,7 +11,7 @@ export default async function PrivateLayout({
   return (
     <>
       <Header />
-      <main className="pb-20 md:pb-0">{children}</main>
+      <main className="pb-20 md:pb-0 max-w-[1440px] mx-auto px-4 md:px-8">{children}</main>
     </>
   );
 }

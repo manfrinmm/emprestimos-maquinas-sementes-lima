@@ -17,7 +17,25 @@ model User {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
+  machines        Machine[]
+
   @@map("users")
+}
+
+model Machine {
+  id              String   @id @default(cuid())
+  name            String
+  serialNumber    String   @map("serial_number")
+  stickerNumber   String   @map("sticker_number")
+  comment         String
+  status          Boolean
+  maintenance     Boolean
+  userId          String?  @map("user_id")
+  user            User?    @relation(fields: [userId], references: [id])
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("machines")
 }
 
 enum UserRole {

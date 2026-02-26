@@ -67,7 +67,7 @@ function NavLink({
 
 export function Header() {
   const pathname = usePathname();
-  const { user } = useUserStore();
+  const { user, setUser } = useUserStore();
 
   return (
     <>
@@ -122,7 +122,7 @@ export function Header() {
                       ))}
                     </nav>
                     <div className="p-4 border-t border-gray-200">
-                      <form action={logoutAction}>
+                      <form action={logoutAction} onSubmit={() => setUser(null)}>
                         <Button
                           type="submit"
                           variant="destructive"
@@ -163,7 +163,7 @@ export function Header() {
                   <span className="text-xs text-gray-500">{roleLabels[user?.role ?? '']}</span>
                 </div>
               </div>
-              <form action={logoutAction}>
+              <form action={logoutAction} onSubmit={() => setUser(null)}>
                 <Button
                   type="submit"
                   variant="destructive"
