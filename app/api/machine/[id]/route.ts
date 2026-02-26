@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { decodeJwt } from "jose";
 import { deleteMachineController, updateMachineController } from "../controller";
+import { isValidToken } from "@/utils/jwt";
 
 export async function PATCH(
   req: Request,
@@ -25,6 +28,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const token = (await cookies()).get("auth-token")?.value ?? null;
+    const payload = decodeJwt(token!) as { role?: string };
+    if (payload.role !== "admin") {
+      return NextResponse.json({ error: "Apenas admin pode excluir" }, { status: 403 });
+    }
     const { id } = await params;
     await deleteMachineController(id);
     return new NextResponse(null, { status: 204 });

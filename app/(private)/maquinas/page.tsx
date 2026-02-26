@@ -58,6 +58,7 @@ export default function PrivateHomePage() {
     if (!deleteId) return;
     deleteMachine(deleteId, {
       onSuccess: () => setDeleteId(null),
+      onError: (err) => setDeleteId(null),
     });
   }, [deleteId, deleteMachine]);
 

@@ -27,6 +27,8 @@ import { useUpdateMachine } from "../_hooks/updateMachine";
 import { Machine } from "@/app/api/machine/type";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
+import { userCanAccess } from "@/utils/user";
+import { useSellers } from "../_hooks/useSellers";
 
 const machineFormSchema = createMachineSchema.extend({
   status: z.boolean().optional(),
@@ -73,6 +75,8 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
   const userId = watch("userId");
   const status = watch("status");
   const maintenance = watch("maintenance");
+  const isAdmin = userCanAccess("admin");
+  const { sellers } = useSellers(open && isAdmin);
 
   useEffect(() => {
     if (open) {
@@ -267,6 +271,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
                 <p className="text-sm text-destructive mt-1">{errors.comment.message}</p>
               )}
             </div>
+            {isAdmin && (
             <div className="md:col-span-2">
               <label htmlFor="userId" className="block text-sm font-semibold text-gray-700 mb-2">
                 Vendedor
@@ -279,17 +284,18 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
                   <SelectValue placeholder="Selecione um vendedor" />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* {SELLERS.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.label}
+                  {sellers.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
                     </SelectItem>
-                  ))} */}
+                  ))}
                 </SelectContent>
               </Select>
               {errors.userId && (
                 <p className="text-sm text-destructive mt-1">{errors.userId.message}</p>
               )}
             </div>
+            )}
           </div>
 
           <div className="flex items-center gap-4 mt-8 pt-6 border-t border-gray-200">

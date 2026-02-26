@@ -1,9 +1,12 @@
+"use client";
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { statusClass, statusLabel } from "../_utils";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { Machine } from "@/app/api/machine/type";
+import { userCanAccess } from "@/utils/user";
 
 export default function TableDesktop({ machines, setDeleteId, onEdit }: { machines: Machine[]; setDeleteId: (id: string) => void; onEdit: (m: Machine) => void }) {
 	return (
@@ -71,6 +74,7 @@ export default function TableDesktop({ machines, setDeleteId, onEdit }: { machin
 								<Button variant="ghost" size="icon-sm" onClick={() => onEdit(m)}>
 									<Pencil className="size-4 text-blue-600" />
 								</Button>
+								{userCanAccess('admin') && (
 								<Button
 									variant="ghost"
 									size="icon-sm"
@@ -79,6 +83,7 @@ export default function TableDesktop({ machines, setDeleteId, onEdit }: { machin
 								>
 									<Trash2 className="size-4" />
 								</Button>
+								)}
 							</div>
 						</TableCell>
 					</TableRow>

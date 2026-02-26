@@ -25,7 +25,7 @@ import {
 import { logoutAction } from "@/app/(private)/_actions/logoutAction";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/store/user";
-import { roleLabels } from "@/utils/user/user";
+import { roleLabels } from "@/utils/user";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
