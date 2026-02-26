@@ -9,3 +9,15 @@ export const createMachineSchema = z.object({
 });
 
 export type CreateMachineInput = z.infer<typeof createMachineSchema>;
+
+export const updateMachineSchema = z.object({
+  name: z.string().min(3).max(255).optional(),
+  serialNumber: z.string().min(1).max(255).optional(),
+  stickerNumber: z.string().min(1).max(255).optional(),
+  comment: z.string().max(1000).optional(),
+  userId: z.string().max(25).nullable().optional(),
+  status: z.boolean().optional(),
+  maintenance: z.boolean().optional(),
+});
+
+export type UpdateMachineInput = z.infer<typeof updateMachineSchema>;

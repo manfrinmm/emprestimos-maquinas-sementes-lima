@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Tractor, Hash, Tag, ClipboardList, User, Loader2, Check } from "lucide-react";
+import { Tractor, Hash, Tag, ClipboardList, User, Loader2, Check, Wrench } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,21 +16,47 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { createMachineSchema, type CreateMachineInput } from "@/app/api/machine/schema";
 import { useCreateMachine } from "../_hooks/createMachine";
+import { useUpdateMachine } from "../_hooks/updateMachine";
+import { Machine } from "@/app/api/machine/type";
 import { cn } from "@/lib/utils";
+import { z } from "zod";
+
+const machineFormSchema = createMachineSchema.extend({
+  status: z.boolean().optional(),
+  maintenance: z.boolean().optional(),
+});
+
+type MachineFormValues = z.infer<typeof machineFormSchema>;
 
 type Props = {
+  machine?: Machine | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreated?: () => void;
+  onUpdated?: () => void;
 };
 
-export function NewMachineModal({ open, onOpenChange, onCreated }: Props) {
+const defaultValues: MachineFormValues = {
+  name: "",
+  serialNumber: "",
+  stickerNumber: "",
+  comment: "",
+  userId: "",
+  status: true,
+  maintenance: false,
+};
+
+export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpdated }: Props) {
+  const isEdit = !!machine;
   const createMachine = useCreateMachine();
+  const { updateMachine, isPending: updating } = useUpdateMachine();
 
   const {
     register,
@@ -38,34 +65,77 @@ export function NewMachineModal({ open, onOpenChange, onCreated }: Props) {
     setValue,
     watch,
     reset,
-  } = useForm<CreateMachineInput>({
-    resolver: zodResolver(createMachineSchema),
-    defaultValues: {
-      name: "",
-      serialNumber: "",
-      stickerNumber: "",
-      comment: "",
-      userId: "",
-    },
+  } = useForm<MachineFormValues>({
+    resolver: zodResolver(machineFormSchema),
+    defaultValues,
   });
 
   const userId = watch("userId");
+  const status = watch("status");
+  const maintenance = watch("maintenance");
 
-  const onSubmit = (data: CreateMachineInput) => {
-    createMachine.mutate(data, {
-      onSuccess: () => {
-        reset();
-        onOpenChange(false);
-        onCreated?.();
-        toast.success("Máquina cadastrada!");
-      },
-      onError: (err: Error) => {
-        toast.error(err.message);
-      },
-    });
+  useEffect(() => {
+    if (open) {
+      if (machine) {
+        reset({
+          name: machine.name,
+          serialNumber: machine.serialNumber,
+          stickerNumber: machine.stickerNumber,
+          comment: machine.comment ?? "",
+          userId: machine.userId ?? "",
+          status: machine.status,
+          maintenance: machine.maintenance,
+        });
+      } else {
+        reset(defaultValues);
+      }
+    }
+  }, [machine, open, reset]);
+
+  const onSubmit = (data: MachineFormValues) => {
+    if (isEdit && machine) {
+      updateMachine(
+        machine.id,
+        {
+          name: data.name,
+          serialNumber: data.serialNumber,
+          stickerNumber: data.stickerNumber,
+          comment: data.comment ?? "",
+          userId: data.userId || null,
+          status: data.status ?? true,
+          maintenance: data.maintenance ?? false,
+        },
+        {
+          onSuccess: () => {
+            onOpenChange(false);
+            onUpdated?.();
+            toast.success("Máquina atualizada!");
+          },
+          onError: (err: Error) => toast.error(err.message),
+        }
+      );
+    } else {
+      const createPayload: CreateMachineInput = {
+        name: data.name,
+        serialNumber: data.serialNumber,
+        stickerNumber: data.stickerNumber,
+        comment: data.comment,
+        userId: data.userId,
+      };
+      createMachine.mutate(createPayload, {
+        onSuccess: () => {
+          reset(defaultValues);
+          onOpenChange(false);
+          onCreated?.();
+          toast.success("Máquina cadastrada!");
+        },
+        onError: (err: Error) => toast.error(err.message),
+      });
+    }
   };
 
   const inputErrorClass = "border-destructive focus-visible:border-destructive aria-invalid:border-destructive";
+  const isPending = createMachine.isPending || updating;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -73,17 +143,24 @@ export function NewMachineModal({ open, onOpenChange, onCreated }: Props) {
         showCloseButton
         className="max-w-2xl p-0 gap-0 overflow-hidden rounded-xl [&_[data-slot=dialog-close]]:text-white [&_[data-slot=dialog-close]]:hover:bg-white/20 [&_[data-slot=dialog-close]]:hover:text-white"
       >
-        <DialogHeader className="bg-gradient-to-r from-primary to-emerald-600 px-8 py-6 flex flex-row items-center justify-between space-y-0 rounded-t-xl">
+        <DialogHeader
+          className={cn(
+            "px-8 py-6 flex flex-row items-center justify-between space-y-0 rounded-t-xl",
+            isEdit
+              ? "bg-gradient-to-r from-blue-600 to-indigo-600"
+              : "bg-gradient-to-r from-primary to-emerald-600"
+          )}
+        >
           <div className="flex items-center gap-3">
             <div className="size-12 rounded-lg bg-white/20 flex items-center justify-center">
               <Tractor className="size-6 text-white" />
             </div>
             <div>
               <DialogTitle className="text-2xl font-bold text-white">
-                Cadastro de Máquina
+                {isEdit ? "Editar Máquina" : "Cadastro de Máquina"}
               </DialogTitle>
-              <p className="text-emerald-50 text-sm">
-                Preencha as informações da máquina
+              <p className={cn("text-sm", isEdit ? "text-blue-50" : "text-emerald-50")}>
+                {isEdit ? "Altere as informações da máquina" : "Preencha as informações da máquina"}
               </p>
             </div>
           </div>
@@ -92,10 +169,7 @@ export function NewMachineModal({ open, onOpenChange, onCreated }: Props) {
         <form onSubmit={handleSubmit(onSubmit)} className="px-8 py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label
-                htmlFor="serial-number"
-                className="block text-sm font-semibold text-gray-700 mb-2"
-              >
+              <label htmlFor="serial-number" className="block text-sm font-semibold text-gray-700 mb-2">
                 Número de Série <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -112,10 +186,7 @@ export function NewMachineModal({ open, onOpenChange, onCreated }: Props) {
               )}
             </div>
             <div>
-              <label
-                htmlFor="sticker-number"
-                className="block text-sm font-semibold text-gray-700 mb-2"
-              >
+              <label htmlFor="sticker-number" className="block text-sm font-semibold text-gray-700 mb-2">
                 Número do Adesivo <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -132,10 +203,7 @@ export function NewMachineModal({ open, onOpenChange, onCreated }: Props) {
               )}
             </div>
             <div className="md:col-span-2">
-              <label
-                htmlFor="machine-name"
-                className="block text-sm font-semibold text-gray-700 mb-2"
-              >
+              <label htmlFor="machine-name" className="block text-sm font-semibold text-gray-700 mb-2">
                 Nome da Máquina <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -151,11 +219,33 @@ export function NewMachineModal({ open, onOpenChange, onCreated }: Props) {
                 <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
               )}
             </div>
+              <>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                  <Select value={status ? "active" : "inactive"} onValueChange={(v) => setValue("status", v === "active")}>
+                    <SelectTrigger className="w-full h-11 border-2 rounded-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Ativa</SelectItem>
+                      <SelectItem value="inactive">Desativada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2 pt-8">
+                  <Checkbox
+                    id="maintenance"
+                    checked={maintenance}
+                    onCheckedChange={(v) => setValue("maintenance", v === true)}
+                  />
+                  <label htmlFor="maintenance" className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                    <Wrench className="size-4 text-amber-600" />
+                    Em manutenção
+                  </label>
+                </div>
+              </>
             <div className="md:col-span-2">
-              <label
-                htmlFor="observations"
-                className="block text-sm font-semibold text-gray-700 mb-2"
-              >
+              <label htmlFor="observations" className="block text-sm font-semibold text-gray-700 mb-2">
                 Observações
               </label>
               <div className="relative">
@@ -178,10 +268,7 @@ export function NewMachineModal({ open, onOpenChange, onCreated }: Props) {
               )}
             </div>
             <div className="md:col-span-2">
-              <label
-                htmlFor="userId"
-                className="block text-sm font-semibold text-gray-700 mb-2"
-              >
+              <label htmlFor="userId" className="block text-sm font-semibold text-gray-700 mb-2">
                 Vendedor
               </label>
               <Select value={userId} onValueChange={(v) => setValue("userId", v)}>
@@ -216,18 +303,23 @@ export function NewMachineModal({ open, onOpenChange, onCreated }: Props) {
             </Button>
             <Button
               type="submit"
-              disabled={createMachine.isPending}
-              className="flex-1 h-11 rounded-lg bg-gradient-to-r from-primary to-emerald-600 hover:from-primary-dark hover:to-emerald-700 shadow-lg"
+              disabled={isPending}
+              className={cn(
+                "flex-1 h-11 rounded-lg shadow-lg",
+                isEdit
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  : "bg-gradient-to-r from-primary to-emerald-600 hover:from-primary-dark hover:to-emerald-700"
+              )}
             >
-              {createMachine.isPending ? (
+              {isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Cadastrando...
+                  {isEdit ? "Salvando..." : "Cadastrando..."}
                 </>
               ) : (
                 <>
                   <Check className="size-4" />
-                  Cadastrar Máquina
+                  {isEdit ? "Salvar alterações" : "Cadastrar Máquina"}
                 </>
               )}
             </Button>

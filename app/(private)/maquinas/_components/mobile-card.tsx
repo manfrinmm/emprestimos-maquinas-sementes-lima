@@ -3,10 +3,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { statusClass, statusLabel } from "../_utils";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
 
-export function MobileCard({ machines, setDeleteId }: { machines: Machine[], setDeleteId: (id: string) => void }) {
+export function MobileCard({ machines, setDeleteId, onEdit }: { machines: Machine[]; setDeleteId: (id: string) => void; onEdit: (m: Machine) => void }) {
 	return (
 		machines.map((m) => (
 			<Card key={m.id} className="py-4">
@@ -27,10 +26,8 @@ export function MobileCard({ machines, setDeleteId }: { machines: Machine[], set
 						</span>
 					</div>
 					<div className="flex gap-1 shrink-0">
-						<Button variant="ghost" size="icon" className="h-9 w-9" asChild>
-							<Link href={`/maquinas/${m.id}/editar`}>
-								<Pencil className="size-4 text-blue-600" />
-							</Link>
+						<Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => onEdit(m)}>
+							<Pencil className="size-4 text-blue-600" />
 						</Button>
 						<Button
 							variant="ghost"

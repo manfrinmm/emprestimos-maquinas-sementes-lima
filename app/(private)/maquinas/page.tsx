@@ -22,6 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 import { NewMachineModal } from "./_components/new-machine-modal";
 import { useDeleteMachine } from "./_hooks/deleteMachine";
+import { Machine } from "@/app/api/machine/type";
 import { useListMachines} from "./_hooks/listMachine";
 import { MobileCard } from "./_components/mobile-card";
 import TableDesktop from "./_components/table-desktop";
@@ -42,6 +43,7 @@ export default function PrivateHomePage() {
   const [searchInput, setSearchInput] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editMachine, setEditMachine] = useState<Machine | null>(null);
   const [newMachineOpen, setNewMachineOpen] = useState(false);
 
   const { machines, total, refetch } = useListMachines({
@@ -86,9 +88,9 @@ export default function PrivateHomePage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os Status</SelectItem>
-              <SelectItem value="available">Disponível</SelectItem>
-              <SelectItem value="borrowed">Emprestada</SelectItem>
-              <SelectItem value="maintenance">Manutenção</SelectItem>
+              <SelectItem value="active">Ativa</SelectItem>
+              <SelectItem value="inactive">Desativada</SelectItem>
+              <SelectItem value="maintenance">Em manutenção</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -99,11 +101,11 @@ export default function PrivateHomePage() {
       </div>
 
       <div className="hidden md:block rounded-lg border bg-card shadow-sm overflow-hidden">
-       <TableDesktop machines={machines} setDeleteId={setDeleteId} />
+       <TableDesktop machines={machines} setDeleteId={setDeleteId} onEdit={setEditMachine} />
       </div>
 
       <div className="md:hidden space-y-4">
-       <MobileCard machines={machines} setDeleteId={setDeleteId} />
+       <MobileCard machines={machines} setDeleteId={setDeleteId} onEdit={setEditMachine} />
       </div>
 
       {machines.length === 0 && (
@@ -169,7 +171,18 @@ export default function PrivateHomePage() {
         </div>
       )}
 
-      <NewMachineModal open={newMachineOpen} onOpenChange={setNewMachineOpen} onCreated={refetch} />
+      <NewMachineModal
+        machine={editMachine ?? undefined}
+        open={newMachineOpen || !!editMachine}
+        onOpenChange={(open) => {
+          if (!open) {
+            setNewMachineOpen(false);
+            setEditMachine(null);
+          }
+        }}
+        onCreated={refetch}
+        onUpdated={refetch}
+      />
 
       <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <DialogContent showCloseButton className="w-2xl max-x-[90vw] ">

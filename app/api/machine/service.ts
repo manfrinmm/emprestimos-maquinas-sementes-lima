@@ -1,5 +1,5 @@
 import { prisma } from "../(prisma)";
-import type { CreateMachineInput } from "./schema";
+import type { CreateMachineInput, UpdateMachineInput } from "./schema";
 import { Machine } from "./type";
 
 export async function getMachines(): Promise<Machine[]> {
@@ -27,6 +27,33 @@ export async function createMachine(input: CreateMachineInput): Promise<Machine>
     status: created.status,
     maintenance: created.maintenance,
     userId: created.userId,
+  };
+}
+
+export async function updateMachine(id: string, input: UpdateMachineInput): Promise<Machine> {
+  const updated = await prisma.machine.update({
+    where: { id },
+    data: {
+      ...(input.name != null && { name: input.name }),
+      ...(input.serialNumber != null && { serialNumber: input.serialNumber }),
+      ...(input.stickerNumber != null && { stickerNumber: input.stickerNumber }),
+      ...(input.comment != null && { comment: input.comment }),
+      ...(input.userId !== undefined && { userId: input.userId }),
+      ...(input.status !== undefined && { status: input.status }),
+      ...(input.maintenance !== undefined && { maintenance: input.maintenance }),
+    },
+    include: { user: { select: { id: true, name: true } } },
+  });
+  return {
+    id: updated.id,
+    name: updated.name,
+    serialNumber: updated.serialNumber,
+    stickerNumber: updated.stickerNumber,
+    comment: updated.comment,
+    status: updated.status,
+    maintenance: updated.maintenance,
+    userId: updated.userId,
+    user: updated.user ?? undefined,
   };
 }
 

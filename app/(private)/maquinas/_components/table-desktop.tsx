@@ -2,11 +2,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 import { statusClass, statusLabel } from "../_utils";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { Pencil, Trash2 } from "lucide-react";
 import { Machine } from "@/app/api/machine/type";
 
-export default function TableDesktop({ machines, setDeleteId }: { machines: Machine[], setDeleteId: (id: string) => void }) {
+export default function TableDesktop({ machines, setDeleteId, onEdit }: { machines: Machine[]; setDeleteId: (id: string) => void; onEdit: (m: Machine) => void }) {
 	return (
 		<Table>
 			<TableHeader>
@@ -69,10 +68,8 @@ export default function TableDesktop({ machines, setDeleteId }: { machines: Mach
 						</TableCell>
 						<TableCell className="px-6 py-4 text-right">
 							<div className="flex items-center gap-1 justify-end">
-								<Button variant="ghost" size="icon-sm" asChild>
-									<Link href={`/maquinas/${m.id}/editar`}>
-										<Pencil className="size-4 text-blue-600" />
-									</Link>
+								<Button variant="ghost" size="icon-sm" onClick={() => onEdit(m)}>
+									<Pencil className="size-4 text-blue-600" />
 								</Button>
 								<Button
 									variant="ghost"
