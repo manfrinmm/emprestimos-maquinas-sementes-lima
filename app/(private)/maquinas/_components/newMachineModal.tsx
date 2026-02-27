@@ -5,12 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "@/app/(private)/_utils/toast";
 import { Tractor, Hash, Tag, ClipboardList, User, Loader2, Check, Wrench } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ModalHeader } from "@/components/ui/modal-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -156,28 +152,12 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
         showCloseButton
         className="max-w-2xl p-0 gap-0 overflow-hidden rounded-xl [&_[data-slot=dialog-close]]:text-white [&_[data-slot=dialog-close]]:hover:bg-white/20 [&_[data-slot=dialog-close]]:hover:text-white"
       >
-        <DialogHeader
-          className={cn(
-            "px-8 py-6 flex flex-row items-center justify-between space-y-0 rounded-t-xl",
-            isEdit
-              ? "bg-gradient-to-r from-blue-600 to-indigo-600"
-              : "bg-gradient-to-r from-primary to-emerald-600"
-          )}
-        >
-          <div className="flex items-center gap-3">
-            <div className="size-12 rounded-lg bg-white/20 flex items-center justify-center">
-              <Tractor className="size-6 text-white" />
-            </div>
-            <div>
-              <DialogTitle className="text-2xl font-bold text-white">
-                {isEdit ? "Editar Máquina" : "Cadastro de Máquina"}
-              </DialogTitle>
-              <p className={cn("text-sm", isEdit ? "text-blue-50" : "text-emerald-50")}>
-                {isEdit ? "Altere as informações da máquina" : "Preencha as informações da máquina"}
-              </p>
-            </div>
-          </div>
-        </DialogHeader>
+        <ModalHeader
+          isEdit={isEdit}
+          icon={Tractor}
+          title={isEdit ? "Editar Máquina" : "Cadastro de Máquina"}
+          subtitle={isEdit ? "Altere as informações da máquina" : "Preencha as informações da máquina"}
+        />
 
         <form onSubmit={handleSubmit(onSubmit)} className="px-8 py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

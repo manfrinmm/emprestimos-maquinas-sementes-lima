@@ -2,18 +2,8 @@
 
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
 import { NewMachineModal } from "./_components/newMachineModal";
+import { DeleteMachineModal } from "./_components/deleteMachineModal";
 import { useDeleteMachine } from "./_hooks/deleteMachine";
 import { Machine } from "@/app/api/machine/type";
 import { useListMachines } from "./_hooks/listMachine";
@@ -174,37 +164,13 @@ export default function PrivateHomePage() {
         onUpdated={refetch}
       />
 
-      <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <DialogContent showCloseButton className="w-2xl max-x-[90vw] ">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
-              <div className="size-10 rounded-full bg-red-100 flex items-center justify-center">
-                <AlertTriangle className="size-5 text-red-600" />
-              </div>
-              Confirmar Exclusão
-            </DialogTitle>
-          </DialogHeader>
-          <p className="text-muted-foreground">
-            Tem certeza que deseja excluir a máquina{" "}
-            <span className="font-medium text-foreground">
-              {machines.find((m) => m.id === deleteId)?.serialNumber ?? deleteId}
-            </span>
-            ? Esta ação não pode ser desfeita.
-          </p>
-          <DialogFooter className="gap-2 flex">
-            <Button variant="outline" onClick={() => setDeleteId(null)}>
-              Cancelar
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDelete}
-              disabled={deleting}
-            >
-              {deleting ? "Excluindo..." : "Excluir"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeleteMachineModal
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        machineLabel={machines.find((m) => m.id === deleteId)?.serialNumber ?? deleteId ?? ""}
+        onConfirm={handleConfirmDelete}
+        loading={deleting}
+      />
     </div>
   );
 }
