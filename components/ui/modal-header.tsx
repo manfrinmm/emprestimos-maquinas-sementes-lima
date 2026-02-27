@@ -11,7 +11,8 @@ type Props = {
   subtitle: string;
 };
 
-export function ModalHeader({ isEdit, icon: Icon, title, subtitle }: Props) {
+export function ModalHeader(props: Props) {
+  const { isEdit, icon: Icon, title, subtitle } = props;
   return (
     <DialogHeader
       className={cn(

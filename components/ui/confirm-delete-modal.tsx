@@ -2,10 +2,8 @@
 
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -13,17 +11,17 @@ import {
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  machineLabel: string;
   onConfirm: () => void;
   loading?: boolean;
+  text: string;
 };
 
-export function DeleteMachineModal({
+export function ConfirmDeleteModal({
   open,
   onOpenChange,
-  machineLabel,
   onConfirm,
   loading = false,
+  text,
 }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -37,8 +35,8 @@ export function DeleteMachineModal({
           </DialogTitle>
         </DialogHeader>
         <p className="text-muted-foreground">
-          Tem certeza que deseja excluir a máquina{" "}
-          <span className="font-medium text-foreground">{machineLabel}</span>?
+          Tem certeza que deseja excluir{" "}
+          <span className="font-medium text-foreground">{text}</span>?
           Esta ação não pode ser desfeita.
         </p>
         <DialogFooter className="gap-2 flex">

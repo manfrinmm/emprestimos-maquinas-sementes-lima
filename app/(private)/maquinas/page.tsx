@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { NewMachineModal } from "./_components/newMachineModal";
-import { DeleteMachineModal } from "./_components/deleteMachineModal";
+import { ConfirmDeleteModal } from "@/components/ui/confirm-delete-modal";
 import { useDeleteMachine } from "./_hooks/deleteMachine";
 import { Machine } from "@/app/api/machine/type";
 import { useListMachines } from "./_hooks/listMachine";
@@ -164,10 +164,10 @@ export default function PrivateHomePage() {
         onUpdated={refetch}
       />
 
-      <DeleteMachineModal
+      <ConfirmDeleteModal
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
-        machineLabel={machines.find((m) => m.id === deleteId)?.serialNumber ?? deleteId ?? ""}
+        text={`a máquina ${machines.find((m) => m.id === deleteId)?.serialNumber ?? deleteId ?? ""}`}
         onConfirm={handleConfirmDelete}
         loading={deleting}
       />
