@@ -10,8 +10,7 @@ import { useListMachines } from "./_hooks/listMachine";
 import { MobileCard } from "./_components/mobileCard";
 import { DashCards } from "./_components/dashCards";
 import { Filters } from "./_components/filters";
-import { useUserStore } from "@/store/user";
-import { adminUserRoles } from "@/utils/user";
+import { useCan } from "@/utils/user";
 
 const TableDesktop = dynamic(
   () => import("./_components/tableDesktop").then((m) => m.default),
@@ -37,14 +36,13 @@ export default function PrivateHomePage() {
     });
   }, [deleteId, deleteMachine]);
 
-  const { user } = useUserStore();
-  const isAdmin = adminUserRoles.includes(user?.role || '');
+  const canCreate = useCan("machine", "create");
   return (
     <div className="py-6 md:py-8">
-      {isAdmin && <DashCards machines={machines} total={total} />}
+      {canCreate && <DashCards machines={machines} total={total} />}
 
       <Filters
-        isAdmin={isAdmin}
+        isAdmin={canCreate}
         onSearch={(values) => {
           refetch(values);
         }}

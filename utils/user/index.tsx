@@ -3,16 +3,28 @@ import { useUserStore } from "@/store/user";
 export const roleLabels: Record<string, string> = {
     seller: 'Vendedor',
     admin: 'Administrador',
-}
+    order_manager: 'Gerente de pedidos',
+    production: 'Produção',
+};
 
-export const checkUserCanAccess = (user: { role?: string } | null, roleNeeded: string): boolean =>
-    user?.role === roleNeeded || user?.role === 'admin';
+export type Resource = 'machine';
+export type Action = 'view' | 'create' | 'edit' | 'delete';
 
-export const useUserCanAccess = (roleNeeded: string): boolean => {
+export const accessByRole: Record<string, Partial<Record<Resource, Action[]>>> = {
+    seller: { machine: ['view'] },
+    admin: { machine: ['view', 'create', 'edit', 'delete'] },
+    order_manager: { machine: ['view', 'create', 'edit', 'delete'] },
+    production: { machine: ['view', 'create'] },
+};
+
+export const can = (user: { role?: string } | null, resource: Resource, action: Action): boolean => {
+    const role = user?.role;
+    if (!role) return false;
+    const actions = accessByRole[role]?.[resource];
+    return Array.isArray(actions) && actions.includes(action);
+};
+
+export const useCan = (resource: Resource, action: Action): boolean => {
     const { user } = useUserStore();
-    return checkUserCanAccess(user, roleNeeded);
-}
-
-export const normalUserRoles = ['seller'];
-
-export const adminUserRoles = ['admin', 'order_manager'];
+    return can(user, resource, action);
+};

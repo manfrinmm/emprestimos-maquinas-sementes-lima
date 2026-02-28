@@ -23,8 +23,8 @@ import { useUpdateMachine } from "../_hooks/updateMachine";
 import { Machine } from "@/app/api/machine/type";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
-import { useUserCanAccess } from "@/utils/user";
 import { useSellers } from "../_hooks/useSellers";
+import { useCan } from "@/utils/user";
 
 const machineFormSchema = createMachineSchema.extend({
   status: z.enum(["available", "maintenance", "disabled", "using"]).optional(),
@@ -70,8 +70,10 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
 
   const sellerExternalId = watch("sellerExternalId");
   const status = watch("status");
-  const isAdmin = useUserCanAccess("admin");
-  const { sellers } = useSellers(open && isAdmin);
+  const canEdit = useCan("machine", "edit");
+  const canCreate = useCan("machine", "create");
+  const canAssignSeller = canEdit;
+  const { sellers } = useSellers(open && canAssignSeller);
 
   useEffect(() => {
     if (open) {
@@ -93,6 +95,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
 
   const onSubmit = (data: MachineFormValues) => {
     if (isEdit && machine) {
+      if (!canEdit) return;
       updateMachine(
         machine.id,
         {
@@ -100,7 +103,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
           serialNumber: data.serialNumber,
           stickerNumber: data.stickerNumber,
           comment: data.comment ?? "",
-          ...(isAdmin
+          ...(canAssignSeller
             ? { sellerExternalId: data.sellerExternalId || null }
             : { userId: data.userId || null }),
           status: data.status ?? "available",
@@ -115,12 +118,13 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
         }
       );
     } else {
+      if (!canCreate) return;
       const createPayload: CreateMachineInput = {
         name: data.name,
         serialNumber: data.serialNumber,
         stickerNumber: data.stickerNumber,
         comment: data.comment,
-        ...(isAdmin && data.sellerExternalId
+        ...(canAssignSeller && data.sellerExternalId
           ? { sellerExternalId: data.sellerExternalId }
           : { userId: data.userId }),
         status: data.status ?? "available",
@@ -244,7 +248,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
                 <p className="text-sm text-destructive mt-1">{errors.comment.message}</p>
               )}
             </div>
-            {isAdmin && (
+            {canAssignSeller && (
             <div className="md:col-span-2">
               <label htmlFor="seller" className="block text-sm font-semibold text-gray-700 mb-2">
                 Vendedor
@@ -280,6 +284,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
             >
               Cancelar
             </Button>
+            {((isEdit && canEdit) || (!isEdit && canCreate)) && (
             <Button
               type="submit"
               disabled={isPending}
@@ -302,6 +307,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
                 </>
               )}
             </Button>
+            )}
           </div>
         </form>
       </DialogContent>

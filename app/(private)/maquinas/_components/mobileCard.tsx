@@ -4,10 +4,11 @@ import { cn } from "@/lib/utils";
 import { statusClass, statusLabel } from "../_utils";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, Tractor, Hash, Tag, User, ClipboardList } from "lucide-react";
-import { useUserCanAccess } from "@/utils/user";
+import { useCan } from "@/utils/user";
 
 export function MobileCard({ machines, setDeleteId, onEdit }: { machines: Machine[]; setDeleteId: (id: string) => void; onEdit: (m: Machine) => void }) {
-	const isAdmin = useUserCanAccess('admin');
+	const canEdit = useCan('machine', 'edit');
+	const canDelete = useCan('machine', 'delete');
 
 	return (
 		machines.map((m) => (
@@ -39,16 +40,18 @@ export function MobileCard({ machines, setDeleteId, onEdit }: { machines: Machin
 						</span>
 					</div>
 					<div className="flex gap-1 shrink-0">
-						<Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => onEdit(m)}>
-							<Pencil className="size-4 text-blue-600" />
-						</Button>
-						{isAdmin && (
-						<Button
-							variant="ghost"
-							size="icon"
-							className="h-9 w-9 text-red-600 hover:text-red-700 hover:bg-red-50"
-							onClick={() => setDeleteId(m.id)}
-						>
+						{canEdit && (
+							<Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => onEdit(m)}>
+								<Pencil className="size-4 text-blue-600" />
+							</Button>
+						)}
+						{canDelete && (
+							<Button
+								variant="ghost"
+								size="icon"
+								className="h-9 w-9 text-red-600 hover:text-red-700 hover:bg-red-50"
+								onClick={() => setDeleteId(m.id)}
+							>
 								<Trash2 className="size-4" />
 							</Button>
 						)}

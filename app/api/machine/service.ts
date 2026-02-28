@@ -4,7 +4,6 @@ import type { CreateMachineInput, ListMachinesQuery, UpdateMachineInput } from "
 import { Machine } from "./type";
 import { getSellers } from "../sellers/service";
 import { getPayload } from "@/utils/jwt";
-import { normalUserRoles } from "@/utils/user";
 
 async function resolveUserIdFromSellerExternalId(
   sellerExternalId: string,
@@ -52,7 +51,7 @@ export async function getMachines(
 ): Promise<{ machines: Machine[]; total: number }> {
   const { role = "", id } = token ? getPayload(token) : { role: "", id: undefined };
   const baseWhere: Prisma.MachineWhereInput =
-    normalUserRoles.includes(role) && id ? { user: { externalId: id } } : {};
+    role === "seller" && id ? { user: { externalId: id } } : {};
 
   const statusWhere: Prisma.MachineWhereInput =
     query.status === "all" ? {} : { status: query.status };

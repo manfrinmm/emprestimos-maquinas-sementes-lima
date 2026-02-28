@@ -6,10 +6,12 @@ import { statusClass, statusLabel } from "../_utils";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { Machine } from "@/app/api/machine/type";
-import { useUserCanAccess } from "@/utils/user";
+import { useCan } from "@/utils/user";
 
 export default function TableDesktop({ machines, setDeleteId, onEdit }: { machines: Machine[]; setDeleteId: (id: string) => void; onEdit: (m: Machine) => void }) {
-	const isAdmin = useUserCanAccess('admin');
+	const canDelete = useCan('machine', 'delete');
+	const canEdit = useCan('machine', 'edit');
+
 	return (
 		<Table>
 			<TableHeader>
@@ -72,10 +74,12 @@ export default function TableDesktop({ machines, setDeleteId, onEdit }: { machin
 						</TableCell>
 						<TableCell className="px-6 py-4 text-right">
 							<div className="flex items-center gap-1 justify-end">
-								<Button variant="ghost" size="icon-sm" onClick={() => onEdit(m)}>
+								{canEdit && (
+									<Button variant="ghost" size="icon-sm" onClick={() => onEdit(m)}>
 									<Pencil className="size-4 text-blue-600" />
-								</Button>
-								{isAdmin && (
+									</Button>
+								)}
+								{canDelete && (
 								<Button
 									variant="ghost"
 									size="icon-sm"
