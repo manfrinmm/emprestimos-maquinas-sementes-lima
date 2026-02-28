@@ -12,7 +12,7 @@ export async function login(email: string, password: string): Promise<LoginResul
     const res = await axios.post<ExternalSessionResponse>(EXTERNAL_API_BASE_URL + '/sessions', { email, password });
     await createOrUpdateUser(res.data.user);
     return { ok: true, user: res.data.user, token: res.data.token };
-  } catch {
+  } catch (error) {
     return { ok: false, error: "Erro ao fazer login, verifique suas credenciais" };
   }
 }

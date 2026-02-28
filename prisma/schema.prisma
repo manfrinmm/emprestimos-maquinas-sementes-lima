@@ -23,19 +23,25 @@ model User {
 }
 
 model Machine {
-  id              String   @id @default(cuid())
+  id              String        @id @default(cuid())
   name            String
-  serialNumber    String   @map("serial_number")
-  stickerNumber   String   @map("sticker_number")
+  serialNumber    String        @map("serial_number")
+  stickerNumber   String        @map("sticker_number")
   comment         String
-  status          Boolean
-  maintenance     Boolean
-  userId          String?  @map("user_id")
-  user            User?    @relation(fields: [userId], references: [id])
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  status          MachineStatus @default(available)
+  userId          String?       @map("user_id")
+  user            User?         @relation(fields: [userId], references: [id])
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
 
   @@map("machines")
+}
+
+enum MachineStatus {
+  available
+  maintenance
+  disabled
+  using
 }
 
 enum UserRole {

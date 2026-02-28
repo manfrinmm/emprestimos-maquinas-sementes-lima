@@ -4,16 +4,22 @@ import { isValidToken } from "@/utils/jwt";
 
 export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
+  const token = req.cookies.get("auth-token")?.value ?? null;
+  const hasValidToken = isValidToken(token);
+
+  if (pathname === "/login" && hasValidToken) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
   if (!pathname.startsWith("/api/") || pathname.startsWith("/api/auth")) {
     return NextResponse.next();
   }
-  const token = req.cookies.get("auth-token")?.value ?? null;
-  if (!isValidToken(token)) {
+  if (!hasValidToken) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/api/:path*"],
+  matcher: ["/login", "/api/:path*"],
 };

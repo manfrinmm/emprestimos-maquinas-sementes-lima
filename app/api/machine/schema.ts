@@ -7,8 +7,7 @@ export const createMachineSchema = z.object({
   comment: z.string().max(1000, "Comentário deve ter no máximo 1000 caracteres").optional(),
   userId: z.string().max(25, "ID do usuário deve ter no máximo 25 caracteres").optional(),
   sellerExternalId: z.string().optional(),
-  status: z.boolean().optional(),
-  maintenance: z.boolean().optional(),
+  status: z.enum(["available", "maintenance", "disabled", "using"]).optional(),
 });
 
 export type CreateMachineInput = z.infer<typeof createMachineSchema>;
@@ -20,8 +19,7 @@ export const updateMachineSchema = z.object({
   comment: z.string().max(1000).optional(),
   userId: z.string().max(25).nullable().optional(),
   sellerExternalId: z.string().nullable().optional(),
-  status: z.boolean().optional(),
-  maintenance: z.boolean().optional(),
+  status: z.enum(["available", "maintenance", "disabled", "using"]).optional(),
 });
 
 export type UpdateMachineInput = z.infer<typeof updateMachineSchema>;
@@ -30,7 +28,7 @@ export const listMachinesQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(10),
   search: z.string().optional(),
-  status: z.enum(["all", "active", "inactive", "maintenance"]).default("all"),
+  status: z.enum(["all", "available", "maintenance", "disabled", "using"]).default("all"),
   sellerId: z.union([z.string().uuid(), z.literal("-1")]).optional(),
 });
 

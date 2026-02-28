@@ -2,32 +2,7 @@ vendedor@sementeslima.com.br
 
 danilo@mail.com
 
-
 tirar cadastro do vendedor
-
-coluna status
-disponivel -> pronto pra uso
-em manutenção -> em manutenção -> so consegue colocar se tiverr disponivel
-desativado -> maquina desativada -> so consegue colocar se tiverr disponivel
-em uso -> em uso
-
-no editar maquina unificar tudo no status (enum)
 
 vendedor so  visualizar 
 colocar que esta em manutenção -> admin, production, order_manager
-
-totalizadores
-maquinas que estao em uso
-maquinas que estao em manutenção
-
---------------------------------
-NEXT_PUBLIC_EXTERNAL_API_BASE_URL=https://api.sementeslima.devmatheus.com
-
-# Valores para conexão com o banco de dados PostgreSQL
-PG_HOST=localhost
-PG_PORT=5432
-PG_USER=postgres
-PG_PASSWORD=docker
-PG_DB_NAME=machinetrackerv2
-DATABASE_URL="postgresql://${PG_USER}:${PG_PASSWORD}@localhost:${PG_PORT}/${PG_DB_NAME}?schema=public"
-DIRECT_URL="postgresql://${PG_USER}:${PG_PASSWORD}@localhost:${PG_PORT}/${PG_DB_NAME}?schema=public"

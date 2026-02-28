@@ -55,13 +55,7 @@ export async function getMachines(
     normalUserRoles.includes(role) && id ? { user: { externalId: id } } : {};
 
   const statusWhere: Prisma.MachineWhereInput =
-    query.status === "active"
-      ? { status: true, maintenance: false }
-      : query.status === "inactive"
-        ? { status: false }
-        : query.status === "maintenance"
-          ? { maintenance: true }
-          : {};
+    query.status === "all" ? {} : { status: query.status };
 
   const searchWhere: Prisma.MachineWhereInput =
     query.search?.trim()
@@ -108,8 +102,7 @@ export async function createMachine(input: CreateMachineInput, token: string | n
       serialNumber: input.serialNumber,
       stickerNumber: input.stickerNumber,
       comment: input.comment ?? "",
-      status: input.status ?? true,
-      maintenance: input.maintenance ?? false,
+      status: (input.status as "available" | "maintenance" | "disabled" | "using") ?? "available",
       ...(userId ? { userId } : {}),
     },
   });
@@ -120,7 +113,6 @@ export async function createMachine(input: CreateMachineInput, token: string | n
     stickerNumber: created.stickerNumber,
     comment: created.comment,
     status: created.status,
-    maintenance: created.maintenance,
     userId: created.userId,
   };
 }
@@ -136,7 +128,6 @@ export async function updateMachine(id: string, input: UpdateMachineInput, token
       ...(input.comment != null && { comment: input.comment }),
       ...(userId !== undefined && { userId }) as { userId?: string | null },
       ...(input.status !== undefined && { status: input.status }),
-      ...(input.maintenance !== undefined && { maintenance: input.maintenance }),
     },
     include: { user: { select: { id: true, name: true, externalId: true } } },
   });
@@ -147,7 +138,6 @@ export async function updateMachine(id: string, input: UpdateMachineInput, token
     stickerNumber: updated.stickerNumber,
     comment: updated.comment,
     status: updated.status,
-    maintenance: updated.maintenance,
     userId: updated.userId,
     user: updated.user ?? undefined,
   };

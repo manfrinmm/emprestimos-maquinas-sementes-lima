@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "@/app/(private)/_utils/toast";
-import { Tractor, Hash, Tag, ClipboardList, User, Loader2, Check, Wrench } from "lucide-react";
+import { Tractor, Hash, Tag, ClipboardList, User, Loader2, Check } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ModalHeader } from "@/components/ui/modal-header";
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { createMachineSchema, type CreateMachineInput } from "@/app/api/machine/schema";
+import { machineStatusFormOptions } from "@/utils/machine";
 import { useCreateMachine } from "../_hooks/createMachine";
 import { useUpdateMachine } from "../_hooks/updateMachine";
 import { Machine } from "@/app/api/machine/type";
@@ -27,8 +27,7 @@ import { useUserCanAccess } from "@/utils/user";
 import { useSellers } from "../_hooks/useSellers";
 
 const machineFormSchema = createMachineSchema.extend({
-  status: z.boolean().optional(),
-  maintenance: z.boolean().optional(),
+  status: z.enum(["available", "maintenance", "disabled", "using"]).optional(),
   sellerExternalId: z.string().optional(),
 });
 
@@ -49,8 +48,7 @@ const defaultValues: MachineFormValues = {
   comment: "",
   userId: "",
   sellerExternalId: "",
-  status: true,
-  maintenance: false,
+  status: "available",
 };
 
 export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpdated }: Props) {
@@ -72,7 +70,6 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
 
   const sellerExternalId = watch("sellerExternalId");
   const status = watch("status");
-  const maintenance = watch("maintenance");
   const isAdmin = useUserCanAccess("admin");
   const { sellers } = useSellers(open && isAdmin);
 
@@ -87,7 +84,6 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
           userId: machine.userId ?? "",
           sellerExternalId: machine.user?.externalId ?? "",
           status: machine.status,
-          maintenance: machine.maintenance,
         });
       } else {
         reset(defaultValues);
@@ -107,8 +103,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
           ...(isAdmin
             ? { sellerExternalId: data.sellerExternalId || null }
             : { userId: data.userId || null }),
-          status: data.status ?? true,
-          maintenance: data.maintenance ?? false,
+          status: data.status ?? "available",
         },
         {
           onSuccess: () => {
@@ -128,8 +123,7 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
         ...(isAdmin && data.sellerExternalId
           ? { sellerExternalId: data.sellerExternalId }
           : { userId: data.userId }),
-        status: data.status ?? true,
-        maintenance: data.maintenance ?? false,
+        status: data.status ?? "available",
       };
       createMachine.mutate(createPayload, {
         onSuccess: () => {
@@ -212,31 +206,21 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
                 <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
               )}
             </div>
-              <>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                  <Select value={status ? "active" : "inactive"} onValueChange={(v) => setValue("status", v === "active")}>
-                    <SelectTrigger className="w-full h-11 border-2 rounded-lg">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Ativa</SelectItem>
-                      <SelectItem value="inactive">Desativada</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center gap-2 pt-8">
-                  <Checkbox
-                    id="maintenance"
-                    checked={maintenance}
-                    onCheckedChange={(v) => setValue("maintenance", v === true)}
-                  />
-                  <label htmlFor="maintenance" className="flex items-center gap-2 text-sm font-medium cursor-pointer">
-                    <Wrench className="size-4 text-amber-600" />
-                    Em manutenção
-                  </label>
-                </div>
-              </>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+              <Select value={status ?? "available"} onValueChange={(v) => setValue("status", v as MachineFormValues["status"])}>
+                <SelectTrigger className="w-full h-11 border-2 rounded-lg">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {machineStatusFormOptions.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="md:col-span-2">
               <label htmlFor="observations" className="block text-sm font-semibold text-gray-700 mb-2">
                 Observações
