@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { createMachineController, getMachinesController } from "./controller";
+import { requireAction } from "@/utils/user";
 
 export async function POST(req: Request) {
   try {
+    const forbidden = await requireAction('machine', 'create', "Você não tem permissão para cadastrar máquinas");
+    if (forbidden) return forbidden;
+    
     const result = await createMachineController(req);
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
@@ -16,6 +20,9 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+    const forbidden = await requireAction('machine', 'view', "Você não tem permissão para visualizar máquinas");
+    if (forbidden) return forbidden;
+    
     const result = await getMachinesController(req.url);
     return NextResponse.json(result, { status: 200 });
   } catch (err) {

@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { decodeJwt } from "jose";
 import { deleteMachineController, updateMachineController } from "../controller";
+import { requireAction } from "@/utils/user";
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const forbidden = await requireAction('machine', 'edit', "Você não tem permissão para atualizar máquinas");
+    if (forbidden) return forbidden;
+
     const result = await updateMachineController(req, { params });
     if (result instanceof NextResponse) return result;
     return NextResponse.json(result, { status: 200 });
@@ -25,11 +27,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const token = (await cookies()).get("auth-token")?.value ?? null;
-    const payload = decodeJwt(token!) as { role?: string };
-    if (payload.role !== "admin") {
-      return NextResponse.json({ error: "Apenas admin pode excluir" }, { status: 403 });
-    }
+    const forbidden = await requireAction('machine', 'delete', "Você não tem permissão para excluir máquinas");
+    if (forbidden) return forbidden;
+
     const { id } = await params;
     await deleteMachineController(id);
     return new NextResponse(null, { status: 204 });

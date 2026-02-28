@@ -1,8 +1,3 @@
 vendedor@sementeslima.com.br
 
 danilo@mail.com
-
-tirar cadastro do vendedor
-
-vendedor so  visualizar 
-colocar que esta em manutenção -> admin, production, order_manager
