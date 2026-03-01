@@ -4,12 +4,9 @@ import { cn } from "@/lib/utils";
 import { statusClass, statusLabel } from "../_utils";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, Tractor, Hash, Tag, User, ClipboardList } from "lucide-react";
-import { useCan } from "@/utils/user";
+import { Can } from "@/utils/user";
 
 export function MobileCard({ machines, setDeleteId, onEdit }: { machines: Machine[]; setDeleteId: (id: string) => void; onEdit: (m: Machine) => void }) {
-	const canEdit = useCan('machine', 'edit');
-	const canDelete = useCan('machine', 'delete');
-
 	return (
 		machines.map((m) => (
 			<Card key={m.id} className="py-4">
@@ -40,12 +37,12 @@ export function MobileCard({ machines, setDeleteId, onEdit }: { machines: Machin
 						</span>
 					</div>
 					<div className="flex gap-1 shrink-0">
-						{canEdit && (
+						<Can resource="machine" action="edit">
 							<Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => onEdit(m)}>
 								<Pencil className="size-4 text-blue-600" />
 							</Button>
-						)}
-						{canDelete && (
+						</Can>
+						<Can resource="machine" action="delete">
 							<Button
 								variant="ghost"
 								size="icon"
@@ -54,7 +51,7 @@ export function MobileCard({ machines, setDeleteId, onEdit }: { machines: Machin
 							>
 								<Trash2 className="size-4" />
 							</Button>
-						)}
+						</Can>
 					</div>
 				</CardHeader>
 				<CardContent className="px-4 pt-0 space-y-2">

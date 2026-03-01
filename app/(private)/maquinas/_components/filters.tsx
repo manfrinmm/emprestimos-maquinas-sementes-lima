@@ -14,7 +14,7 @@ import { statusOptions } from "@/utils/machine";
 import { useState } from "react";
 import { useSellers } from "../_hooks/useSellers";
 import { Plus } from "lucide-react";
-import { useCan } from "@/utils/user";
+import { Can, useCan } from "@/utils/user";
 
 
 export type FiltersValues = {
@@ -33,7 +33,6 @@ export function Filters({ onSearch, isAdmin, onNewMachine }: FiltersProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchFilter, setSearchFilter] = useState<string>("");
   const [sellerFilter, setSellerFilter] = useState<string>("all");
-  const canCreate = useCan("machine", "create");
 
   const { sellers } = useSellers(isAdmin);
 
@@ -41,7 +40,7 @@ export function Filters({ onSearch, isAdmin, onNewMachine }: FiltersProps) {
     <div className="mb-8">
       <CardContent className="p-0">
         <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${isAdmin ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} items-end`}>
-          {isAdmin && (
+          <Can resource="machine" action="create">
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none">Vendedor</label>
               <Select value={sellerFilter} onValueChange={setSellerFilter}>
@@ -59,7 +58,7 @@ export function Filters({ onSearch, isAdmin, onNewMachine }: FiltersProps) {
                 </SelectContent>
               </Select>
             </div>
-          )}
+          </Can>
           <div className="space-y-2">
             <label className="text-sm font-medium leading-none">Status</label>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -99,14 +98,14 @@ export function Filters({ onSearch, isAdmin, onNewMachine }: FiltersProps) {
               Buscar
             </Button>
           </div>
-          {canCreate && (
+          <Can resource="machine" action="create">
             <div className="space-y-2 w-full flex justify-end">
               <Button className="shrink-0 w-full sm:w-auto" onClick={onNewMachine}>
                 <Plus className="size-4" />
                 Nova Máquina
               </Button>
             </div>
-          )}
+          </Can>
         </div>
       </CardContent>
     </div>

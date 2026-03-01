@@ -10,7 +10,7 @@ import { useListMachines } from "./_hooks/listMachine";
 import { MobileCard } from "./_components/mobileCard";
 import { DashCards } from "./_components/dashCards";
 import { Filters } from "./_components/filters";
-import { useCan } from "@/utils/user";
+import { useCan, Can } from "@/utils/user";
 
 const TableDesktop = dynamic(
   () => import("./_components/tableDesktop").then((m) => m.default),
@@ -39,7 +39,9 @@ export default function PrivateHomePage() {
   const canCreate = useCan("machine", "create");
   return (
     <div className="py-6 md:py-8">
-      {canCreate && <DashCards machines={machines} total={total} />}
+      <Can resource="machine" action="create">
+        <DashCards machines={machines} total={total} />
+      </Can>
 
       <Filters
         isAdmin={canCreate}

@@ -24,7 +24,7 @@ import { Machine } from "@/app/api/machine/type";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 import { useSellers } from "../_hooks/useSellers";
-import { useCan } from "@/utils/user";
+import { useCan, Can } from "@/utils/user";
 
 const machineFormSchema = createMachineSchema.extend({
   status: z.enum(["available", "maintenance", "disabled", "using"]).optional(),
@@ -71,7 +71,6 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
   const sellerExternalId = watch("sellerExternalId");
   const status = watch("status");
   const canEdit = useCan("machine", "edit");
-  const canCreate = useCan("machine", "create");
   const canAssignSeller = canEdit;
   const { sellers } = useSellers(open && canAssignSeller);
 
@@ -118,7 +117,6 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
         }
       );
     } else {
-      if (!canCreate) return;
       const createPayload: CreateMachineInput = {
         name: data.name,
         serialNumber: data.serialNumber,
@@ -248,31 +246,31 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
                 <p className="text-sm text-destructive mt-1">{errors.comment.message}</p>
               )}
             </div>
-            {canAssignSeller && (
-            <div className="md:col-span-2">
-              <label htmlFor="seller" className="block text-sm font-semibold text-gray-700 mb-2">
-                Vendedor
-              </label>
-              <Select value={sellerExternalId} onValueChange={(v) => setValue("sellerExternalId", v)}>
-                <SelectTrigger className={cn("relative w-full pl-10 h-11 border-2 rounded-lg", errors.sellerExternalId && inputErrorClass)}>
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <User className="size-4 text-muted-foreground" />
-                  </span>
-                  <SelectValue placeholder="Selecione um vendedor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sellers.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.sellerExternalId && (
-                <p className="text-sm text-destructive mt-1">{errors.sellerExternalId.message}</p>
-              )}
-            </div>
-            )}
+            <Can resource="machine" action="edit">
+              <div className="md:col-span-2">
+                <label htmlFor="seller" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Vendedor
+                </label>
+                <Select value={sellerExternalId} onValueChange={(v) => setValue("sellerExternalId", v)}>
+                  <SelectTrigger className={cn("relative w-full pl-10 h-11 border-2 rounded-lg", errors.sellerExternalId && inputErrorClass)}>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <User className="size-4 text-muted-foreground" />
+                    </span>
+                    <SelectValue placeholder="Selecione um vendedor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sellers.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.sellerExternalId && (
+                  <p className="text-sm text-destructive mt-1">{errors.sellerExternalId.message}</p>
+                )}
+              </div>
+            </Can>
           </div>
 
           <div className="flex items-center gap-4 mt-8 pt-6 border-t border-gray-200">
@@ -284,29 +282,52 @@ export function NewMachineModal({ machine, open, onOpenChange, onCreated, onUpda
             >
               Cancelar
             </Button>
-            {((isEdit && canEdit) || (!isEdit && canCreate)) && (
-            <Button
-              type="submit"
-              disabled={isPending}
-              className={cn(
-                "flex-1 h-11 rounded-lg shadow-lg",
-                isEdit
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                  : "bg-gradient-to-r from-primary to-emerald-600 hover:from-primary-dark hover:to-emerald-700"
-              )}
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  {isEdit ? "Salvando..." : "Cadastrando..."}
-                </>
-              ) : (
-                <>
-                  <Check className="size-4" />
-                  {isEdit ? "Salvar alterações" : "Cadastrar Máquina"}
-                </>
-              )}
-            </Button>
+            {isEdit ? (
+              <Can resource="machine" action="edit">
+                <Button
+                  type="submit"
+                  disabled={isPending}
+                  className={cn(
+                    "flex-1 h-11 rounded-lg shadow-lg",
+                    "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  )}
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="size-4" />
+                      Salvar alterações
+                    </>
+                  )}
+                </Button>
+              </Can>
+            ) : (
+              <Can resource="machine" action="create">
+                <Button
+                  type="submit"
+                  disabled={isPending}
+                  className={cn(
+                    "flex-1 h-11 rounded-lg shadow-lg",
+                    "bg-gradient-to-r from-primary to-emerald-600 hover:from-primary-dark hover:to-emerald-700"
+                  )}
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      Cadastrando...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="size-4" />
+                      Cadastrar Máquina
+                    </>
+                  )}
+                </Button>
+              </Can>
             )}
           </div>
         </form>
